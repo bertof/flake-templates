@@ -13,11 +13,11 @@
     };
   };
 
-  outputs = { nixpkgs, flake-utils, pre-commit-hooks }:
+  outputs = { self, nixpkgs, flake-utils, pre-commit-hooks }:
     with flake-utils.lib;
     eachDefaultSystem (system:
       let pkgs = import nixpkgs { inherit system; }; in
-      rec {
+      {
         checks = {
           pre-commit-check = pre-commit-hooks.lib.${system}.run {
             src = ./.;
@@ -28,7 +28,7 @@
           };
         };
         devShell = pkgs.mkShell {
-          inherit (checks.pre-commit-check) shellHook;
+          inherit (self.${system}.checks.pre-commit-check) shellHook;
         };
       });
 }

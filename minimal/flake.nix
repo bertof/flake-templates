@@ -9,23 +9,23 @@
     };
   };
 
-  outputs = { nixpkgs, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils }:
     with flake-utils.lib;
     eachDefaultSystem (system:
       let pkgs = import nixpkgs { inherit system; };
       in
-      rec {
+      {
         packages = flattenTree {
           hello = pkgs.hello;
         };
-        defaultPackage = packages.hello;
+        defaultPackage = self.packages.${system}.hello;
         apps = {
-          hello = mkApp { drv = packages.hello; };
+          hello = mkApp { drv = self.packages.${system}.hello; };
         };
         defaultApp = apps.hello;
         devShell = pkgs.mkShell {
           buildInputs = with pkgs; [
-            hello
+            self.packages.${system}.hello
           ];
         };
       });
