@@ -15,8 +15,9 @@
   };
 
   outputs = { nixpkgs, flake-utils, pre-commit-hooks, ... }: with flake-utils.lib;
-    {
-      templates = flattenTree {
+    rec {
+      defaultTemplate = templates.pre-commit;
+      templates = {
         meta = {
           path = ./meta;
           description = "Common metadata files for flake based projects";
