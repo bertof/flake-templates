@@ -28,7 +28,7 @@
           };
         };
         devShell = pkgs.mkShell {
-          inherit (self.${system}.checks.pre-commit-check) shellHook;
+          inherit (self.checks.${system}.pre-commit-check) shellHook;
         };
       });
 }
