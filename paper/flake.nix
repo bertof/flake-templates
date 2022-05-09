@@ -32,9 +32,9 @@
       };
     in
     rec {
-      defaultPackage = packages.document;
-
       packages = {
+        default = document;
+
         document = pkgs.stdenvNoCC.mkDerivation rec {
           name = "main.pdf";
           src = ./.;
@@ -63,13 +63,12 @@
         '';
       };
 
-      defaultApp = apps.auto_compile;
-
-      apps = {
+      apps = rec {
+        default = auto_compile;
         compile = { type = "app"; program = "${packages.compile}/bin/compile_script"; };
         auto_compile = { type = "app"; program = "${packages.auto_compile}/bin/auto_compile_script"; };
       };
 
-      devShell = pkgs.mkShell { buildInputs = with pkgs; [ texScheme watchexec ]; };
+      devShells.default = pkgs.mkShell { buildInputs = with pkgs; [ texScheme watchexec ]; };
     });
 }

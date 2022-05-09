@@ -14,16 +14,17 @@
     eachDefaultSystem (system:
       let pkgs = import nixpkgs { inherit system; };
       in
+      rec
       {
-        packages = flattenTree {
+        packages = flattenTree rec {
+          default = hello;
           hello = pkgs.hello;
         };
-        defaultPackage = self.packages.${system}.hello;
-        apps = {
-          hello = mkApp { drv = self.packages.${system}.hello; };
+        apps = rec {
+          default = hello;
+          hello = mkApp { drv = packages.hello; };
         };
-        defaultApp = apps.hello;
-        devShell = pkgs.mkShell {
+        devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
             self.packages.${system}.hello
           ];
