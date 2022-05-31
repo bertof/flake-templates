@@ -28,8 +28,11 @@
             };
           };
         };
+
         devShells.default = pkgs.mkShell {
-          inherit (self.checks.${system}.pre-commit-check) shellHook;
+          shellHook = ''
+            ${self.checks.${system}.pre-commit-check.shellHook}
+          '';
         };
       });
 }

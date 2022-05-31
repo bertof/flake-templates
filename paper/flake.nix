@@ -4,62 +4,39 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    tex2nix = { url = "github:Mic92/tex2nix"; inputs.utils.follows = "nixpkgs"; };
   };
 
-  outputs = { nixpkgs, flake-utils }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, flake-utils }: flake-utils.lib.eachDefaultSystem (system:
     let
-      pkgs = import nixpkgs { inherit system; };
-      # texScheme = pkgs.texlive.combined.scheme-full; # Full texlive distribution
-
-      # Individual packages
-      texScheme = pkgs.texlive.combine {
-        inherit (pkgs.texlive)
-          scheme-medium
-          algorithms
-          arydshln
-          caption
-          datatool
-          glossaries
-          ieeetran
-          makecell
-          mfirstuc
-          multirow
-          preprint
-          soul
-          subfigure
-          xfor
-          xypic;
-      };
+      pkgs = import nixpkgs { inherit system; overlays = [ ({ inherit (tex2nix.packages) tex2nix; }) ]; };
+      texScheme = (pkgs.callPackage ./tex-env.nix {
+        extraTexPackages = { inherit (pkgs.texlive) scheme-medium datatool ncctools preprint xypic; };
+      });
     in
     rec {
-      packages = {
+      packages = pkgs // rec {
         default = document;
 
         document = pkgs.stdenvNoCC.mkDerivation rec {
           name = "main.pdf";
-          src = ./.;
+          src = self;
           buildInputs = [ texScheme pkgs.coreutils ];
-          buildPhase = ''
-            export PATH="${pkgs.lib.makeBinPath buildInputs}";
-            mkdir -p .cache/texmf-var
-            env TEXMFHOME=.cache TEXMFVAR=.cache/texmf-var \
-              latexmk -interaction=nonstopmode -pdf -pdflatex \
-              main.tex
-          '';
-          installPhase = ''
-            install main.pdf $out
-          '';
+          phases = [ "unpackPhase" "buildPhase" "installPhase" ];
+          buildPhase = "${compile}/bin/compile_script main.tex";
+          installPhase = "install main.pdf $out";
         };
 
         compile = pkgs.writeShellScriptBin "compile_script" ''
           export PATH="${pkgs.lib.makeBinPath [texScheme pkgs.coreutils]}";
           mkdir -p .cache/texmf-var
+          latexmk -c
           env TEXMFHOME=.cache TEXMFVAR=.cache/texmf-var \
-            latexmk -interaction=nonstopmode -pdf $@
+            latexmk -interaction=nonstopmode -pdf ''${@:-main.tex}
         '';
 
         auto_compile = pkgs.writeShellScriptBin "auto_compile_script" ''
-          ${pkgs.watchexec}/bin/watchexec -e tex,bib ${packages.compile}/bin/compile_script $@
+          ${pkgs.watchexec}/bin/watchexec -e tex,bib ${packages.compile}/bin/compile_script ''${@:-main.tex}
         '';
       };
 
@@ -69,6 +46,11 @@
         auto_compile = { type = "app"; program = "${packages.auto_compile}/bin/auto_compile_script"; };
       };
 
-      devShells.default = pkgs.mkShell { buildInputs = with pkgs; [ texScheme watchexec ]; };
+      devShells.default = pkgs.mkShell {
+        buildInputs = with pkgs; [ texScheme watchexec tex2nix ];
+        shellHook = ''
+          ${self.checks.${system}.pre-commit-check.shellHook}
+        '';
+      };
     });
 }
