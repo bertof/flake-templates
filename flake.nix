@@ -30,6 +30,10 @@
           path = ./pre-commit;
           description = "Basic flake environment with pre-commit checks";
         };
+        paper = {
+          path = ./paper;
+          description = "Latex paper with pre-commit checks";
+        };
       };
     }
     // (eachDefaultSystem (system:
@@ -44,6 +48,7 @@
             };
           };
         };
+
         devShells.default = pkgs.mkShell {
           inherit (self.checks.${system}.pre-commit-check) shellHook;
         };
