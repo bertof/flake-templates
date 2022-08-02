@@ -1,6 +1,5 @@
 {
   description = "Minimal flake environment";
-
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils = {
