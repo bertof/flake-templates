@@ -15,21 +15,22 @@
   outputs = { self, nixpkgs, flake-utils, tex2nix, pre-commit-hooks }: flake-utils.lib.eachDefaultSystem (system:
     let
       pkgs = import nixpkgs { inherit system; overlays = [ (_: _: { inherit (tex2nix.packages) tex2nix; }) ]; };
-      texScheme = (pkgs.callPackage ./tex-env.nix {
-        extraTexPackages = {
-          inherit (pkgs.texlive) scheme-medium
-            algorithms
-            caption
-            datatool
-            glossaries
-            ieeetran
-            mfirstuc
-            preprint
-            xfor
-            xypic
-            ;
-        };
-      });
+      texScheme = pkgs.texlive.combined.scheme-full;
+      # texScheme = (pkgs.callPackage ./tex-env.nix {
+      #   extraTexPackages = {
+      #     inherit (pkgs.texlive) scheme-medium
+      #       algorithms
+      #       caption
+      #       datatool
+      #       glossaries
+      #       ieeetran
+      #       mfirstuc
+      #       preprint
+      #       xfor
+      #       xypic
+      #       ;
+      #   };
+      # });
     in
     rec {
       packages = rec {
