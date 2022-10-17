@@ -1,0 +1,13 @@
+image: docker.io/nixpkgs/nix-flakes
+
+stages:
+  - build
+
+build:
+  stage: build
+  script:
+    - nix build -v
+    - cp result main.pdf
+  artifacts:
+    paths:
+      - ./main.pdf
