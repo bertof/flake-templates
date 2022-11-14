@@ -14,7 +14,7 @@
 
   outputs = { self, nixpkgs, flake-utils, tex2nix, pre-commit-hooks }: flake-utils.lib.eachDefaultSystem (system:
     let
-      pkgs = import nixpkgs { inherit system; overlays = [ (_: _: { inherit (tex2nix.packages) tex2nix; }) ]; };
+      pkgs = import nixpkgs { inherit system; overlays = [ (_: _: { inherit (tex2nix.packages.${system}) tex2nix; }) ]; };
       texScheme = pkgs.texlive.combined.scheme-full;
       # texScheme = (pkgs.callPackage ./tex-env.nix {
       #   extraTexPackages = {
@@ -31,6 +31,29 @@
       #       ;
       #   };
       # });
+
+      compile = pkgs.writeShellScript "compile_script" ''
+        export PATH="${pkgs.lib.makeBinPath [texScheme pkgs.coreutils]}";
+        mkdir -p .cache/texmf-var
+        latexmk -c
+        env TEXMFHOME=.cache TEXMFVAR=.cache/texmf-var \
+          latexmk -interaction=nonstopmode -pdf ''${@:-main.tex}
+      '';
+
+      auto_compile = pkgs.writeShellScript "auto_compile_script" ''
+        ${pkgs.watchexec}/bin/watchexec -e tex,bib ${compile} ''${@:-main.tex}
+      '';
+
+      clean_bibliography = pkgs.writeShellScript "clean_bibliography" ''
+        ${pkgs.bibclean}/bin/bibclean \
+          -align-equals \
+          -brace-protect \
+          -check-values \
+          -fix-accents \
+          -fix-initials \
+          -fix-names \
+          -output-file biblio.bib <(cat biblio.bib) 
+      '';
     in
     rec {
       packages = rec {
@@ -41,44 +64,34 @@
           src = self;
           buildInputs = [ texScheme pkgs.coreutils ];
           phases = [ "unpackPhase" "buildPhase" "installPhase" ];
-          buildPhase = "${compile}/bin/compile_script main.tex";
+          buildPhase = "${compile} main.tex";
           installPhase = "install main.pdf $out";
         };
+      };
 
-        compile = pkgs.writeShellScriptBin "compile_script" ''
-          export PATH="${pkgs.lib.makeBinPath [texScheme pkgs.coreutils]}";
-          mkdir -p .cache/texmf-var
-          latexmk -c
-          env TEXMFHOME=.cache TEXMFVAR=.cache/texmf-var \
-            latexmk -interaction=nonstopmode -pdf ''${@:-main.tex}
-        '';
-
-        auto_compile = pkgs.writeShellScriptBin "auto_compile_script" ''
-          ${pkgs.watchexec}/bin/watchexec -e tex,bib ${packages.compile}/bin/compile_script ''${@:-main.tex}
-        '';
-
-        checks = {
-          pre-commit-check = pre-commit-hooks.lib.${system}.run {
-            src = ./.;
-            hooks = {
-              nixpkgs-fmt.enable = true;
-              nix-linter.enable = true;
-            };
+      checks = {
+        pre-commit-check = pre-commit-hooks.lib.${system}.run {
+          src = ./.;
+          hooks = {
+            nixpkgs-fmt.enable = true;
+            nix-linter.enable = true;
           };
         };
-
-        apps = rec {
-          default = auto_compile;
-          compile = { type = "app"; program = "${packages.compile}/bin/compile_script"; };
-          auto_compile = { type = "app"; program = "${packages.auto_compile}/bin/auto_compile_script"; };
-        };
-
-        devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [ texScheme watchexec tex2nix ];
-          shellHook = ''
-            ${self.checks.${system}.pre-commit-check.shellHook}
-          '';
-        };
       };
-    });
+
+      apps = {
+        default = { type = "app"; program = "${auto_compile}"; };
+        compile = { type = "app"; program = "${compile}"; };
+        auto_compile = { type = "app"; program = "${auto_compile}"; };
+        clean_bibliography = { type = "app"; program = "${clean_bibliography}"; };
+      };
+
+      devShells.default = pkgs.mkShell {
+        buildInputs = [ texScheme pkgs.watchexec pkgs.tex2nix ];
+        shellHook = ''
+          ${self.checks.${system}.pre-commit-check.shellHook}
+        '';
+      };
+    }
+  );
 }    
