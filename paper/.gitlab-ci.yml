@@ -9,5 +9,8 @@ build:
     - nix build -v
     - cp result main.pdf
   artifacts:
+    name: "Document"
+    expose_as: "Document"
+    expire_in: "1 mos"
     paths:
       - ./main.pdf
