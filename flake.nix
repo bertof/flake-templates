@@ -34,6 +34,10 @@
           path = ./paper;
           description = "Latex paper with pre-commit checks";
         };
+        rust = {
+          path = ./rust;
+          description = "Rust library with pre-ocommit checks";
+        };
       };
     }
     // (eachDefaultSystem (system:
