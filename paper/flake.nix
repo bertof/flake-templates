@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    tex2nix = { url = "github:Mic92/tex2nix"; inputs.utils.follows = "nixpkgs"; };
+    tex2nix.url = "github:Mic92/tex2nix";
     pre-commit-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
