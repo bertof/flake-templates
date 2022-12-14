@@ -18,7 +18,7 @@
       {
         packages = flattenTree rec {
           default = hello;
-          hello = pkgs.hello;
+          inherit (pkgs) hello;
         };
         apps = rec {
           default = hello;
