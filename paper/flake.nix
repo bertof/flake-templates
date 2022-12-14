@@ -40,8 +40,19 @@
           latexmk -interaction=nonstopmode -pdf ''${@:-main.tex}
       '';
 
+      fast_compile = pkgs.writeShellScript "compile_script" ''
+        export PATH="${pkgs.lib.makeBinPath [texScheme pkgs.coreutils]}";
+        mkdir -p .cache/texmf-var
+        env TEXMFHOME=.cache TEXMFVAR=.cache/texmf-var \
+          latexmk -interaction=nonstopmode -pdf ''${@:-main.tex}
+      '';
+
       auto_compile = pkgs.writeShellScript "auto_compile_script" ''
         ${pkgs.watchexec}/bin/watchexec -e tex,bib ${compile} ''${@:-main.tex}
+      '';
+
+      fast_auto_compile = pkgs.writeShellScript "auto_compile_script" ''
+        ${pkgs.watchexec}/bin/watchexec -e tex,bib ${fast_compile} ''${@:-main.tex}
       '';
 
       clean_bibliography = pkgs.writeShellScript "clean_bibliography" ''
@@ -82,7 +93,9 @@
       apps = {
         default = { type = "app"; program = "${auto_compile}"; };
         compile = { type = "app"; program = "${compile}"; };
+        fast_compile = { type = "app"; program = "${fast_compile}"; };
         auto_compile = { type = "app"; program = "${auto_compile}"; };
+        fast_auto_compile = { type = "app"; program = "${fast_auto_compile}"; };
         clean_bibliography = { type = "app"; program = "${clean_bibliography}"; };
       };
 
