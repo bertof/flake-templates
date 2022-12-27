@@ -45,8 +45,8 @@
             src = ./.;
             hooks = {
               deadnix.enable = true;
-              nixpkgs-fmt.enable = true;
               nix-linter.enable = true;
+              nixpkgs-fmt.enable = true;
               statix.enable = true;
             };
           };
