@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    tex2nix.url = "github:Mic92/tex2nix";
+    # tex2nix.url = "github:Mic92/tex2nix";
     pre-commit-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -12,9 +12,9 @@
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, tex2nix, pre-commit-hooks }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, flake-utils, pre-commit-hooks }: flake-utils.lib.eachDefaultSystem (system:
     let
-      pkgs = import nixpkgs { inherit system; overlays = [ (_: _: { inherit (tex2nix.packages.${system}) tex2nix; }) ]; };
+      pkgs = import nixpkgs { inherit system; };
       texScheme = pkgs.texlive.combined.scheme-full;
       # texScheme = (pkgs.callPackage ./tex-env.nix {
       #   extraTexPackages = {
