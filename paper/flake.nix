@@ -51,7 +51,7 @@
           -fix-accents \
           -fix-initials \
           -fix-names \
-          -output-file biblio.bib <(cat biblio.bib) 
+          -output-file ''${1:-biblio.bib} <(cat ''${1:-biblio.bib}) 
       '';
 
       pdf_builder = tex_file:
