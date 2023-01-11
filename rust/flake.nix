@@ -1,103 +1,68 @@
 {
-  description = "A very basic flake";
+  description = "A basic development flake for this Rust based project";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils = { url = "github:numtide/flake-utils"; };
-    rust-overlay = { url = "github:oxalica/rust-overlay"; inputs.nixpkgs.follows = "nixpkgs"; inputs.flake-utils.follows = "flake-utils"; };
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    rust-overlay.url = "github:oxalica/rust-overlay";
+    flake-utils.url = "github:numtide/flake-utils";
     pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
   };
 
-  outputs = { self, nixpkgs, flake-utils, rust-overlay, pre-commit-hooks }:
-
+  outputs = { self, nixpkgs, rust-overlay, flake-utils, pre-commit-hooks }:
     let
+      extensions = [ "rust-src" ];
+      targets = [ "x86_64-unknown-linux-gnu" "aarch64-unknown-linux-gnu" ];
       overlays = [
-        rust-overlay.overlays.default # Rust overlay lib
-        (_self: super: { rustc = super.rust-bin.stable.latest.default; }) # Rust overlay
+        rust-overlay.overlays.default
+        (_: super: { rustc = super.rust-bin.stable.latest.default.override { inherit extensions targets; }; })
       ];
+    in
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = import nixpkgs { inherit system overlays; };
+        minBuildInputs = with pkgs; [ cargo rustc stdenv.cc ];
+      in
+      with nixpkgs.lib;
+      {
+        checks = {
+          pre-commit-check = pre-commit-hooks.lib.${system}.run {
+            src = ./.;
 
-      multiPlatform = flake-utils.lib.eachDefaultSystem (system:
-        let
-          # Packages
-          pkgs = import nixpkgs { inherit system overlays; };
-        in
-        with pkgs.lib;
-        rec {
+            tools = {
+              rustfmt = pkgs.rustc;
+              clippy = pkgs.rustc;
+            };
 
-          checks = {
-            pre-commit-check = pre-commit-hooks.lib.${system}.run {
-              src = ./.;
-              hooks = {
-                nixpkgs-fmt = { enable = true; };
-                nix-linter = { enable = true; };
-                clippy =
+            hooks = {
+              clippy.enable = true;
+              rustfmt.enable = true;
+              cargo-test = {
+                enable = true;
+                name = "cargo test";
+                description = "Test Rust code.";
+                entry =
                   let
-                    wrapper = pkgs.symlinkJoin {
-                      name = "clippy-wrapped";
-                      paths = [ pkgs.rustc ];
-                      nativeBuildInputs = [ pkgs.makeWrapper ];
-                      postBuild = ''
-                        wrapProgram $out/bin/cargo-clippy \
-                          --prefix PATH : ${lib.makeBinPath [ pkgs.rustc ]}
-                      '';
-                    };
+                    s = pkgs.writeShellScript "cargo test" ''
+                      export PATH=${makeBinPath minBuildInputs}
+                      cargo test'';
                   in
-                  {
-                    name = "clippy";
-                    description = "Lint Rust code.";
-                    entry = "${wrapper}/bin/cargo-clippy clippy";
-                    files = "\\.(rs|toml)$";
-                    pass_filenames = false;
-                  };
-                rustfmt =
-                  let
-                    wrapper = pkgs.symlinkJoin {
-                      name = "rustfmt-wrapped";
-                      paths = [ pkgs.rustc ];
-                      nativeBuildInputs = [ pkgs.makeWrapper ];
-                      postBuild = ''
-                        wrapProgram $out/bin/cargo-fmt \
-                          --prefix PATH : ${lib.makeBinPath [ pkgs.rustc ]}
-                      '';
-                    };
-                  in
-                  {
-                    name = "rustfmt";
-                    description = "Format Rust code.";
-                    entry = "${wrapper}/bin/cargo-fmt fmt -- --check --color always";
-                    files = "\\.(rs|toml)$";
-                    pass_filenames = false;
-                  };
+                  "${s}";
+                files = "\\.rs$";
+                pass_filenames = false;
               };
+              deadnix.enable = true;
+              nix-linter.enable = true;
+              nixpkgs-fmt.enable = true;
+              statix.enable = true;
             };
           };
+        };
 
-          devShells.default = pkgs.mkShell {
-            buildInputs = with pkgs; [
-              stdenv.cc.cc.lib
-              # rustEnvironment
-              # cargo
-              rustc
-              pkg-config
-              openssl.dev
+        devShells.default = pkgs.mkShell {
+          buildInputs = minBuildInputs;
+          shellHook = "${self.checks.${system}.pre-commit-check.shellHook}";
+        };
 
-              bacon
-              cargo-watch
-              cargo-outdated
-              clippy
-              crate2nix
-              rustfmt
-            ];
-
-            shellHook = ''
-              ${self.checks.${system}.pre-commit-check.shellHook}
-            '';
-          };
-        });
-
-    in
-    builtins.foldl' nixpkgs.lib.recursiveUpdate { } [
-      multiPlatform
-    ];
-
+        formatter = pkgs.nixpkgs-fmt;
+      });
 }
