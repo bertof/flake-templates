@@ -14,16 +14,17 @@
       targets = [ "x86_64-unknown-linux-gnu" "aarch64-unknown-linux-gnu" ];
       overlays = [
         rust-overlay.overlays.default
-        (_: super: { rustc = super.rust-bin.stable.latest.default.override { inherit extensions targets; }; })
+        (_: super: {
+          rustc = super.rust-bin.stable.latest.default.override {
+            inherit extensions targets;
+          };
+        })
       ];
-    in
-    flake-utils.lib.eachDefaultSystem (system:
+    in flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system overlays; };
         minBuildInputs = with pkgs; [ cargo rustc stdenv.cc ];
-      in
-      with nixpkgs.lib;
-      {
+      in with nixpkgs.lib; {
         checks = {
           pre-commit-check = pre-commit-hooks.lib.${system}.run {
             src = ./.;
@@ -40,13 +41,11 @@
                 enable = true;
                 name = "cargo test";
                 description = "Test Rust code.";
-                entry =
-                  let
-                    s = pkgs.writeShellScript "cargo test" ''
-                      export PATH=${makeBinPath minBuildInputs}
-                      cargo test'';
-                  in
-                  "${s}";
+                entry = let
+                  s = pkgs.writeShellScript "cargo test" ''
+                    export PATH=${makeBinPath minBuildInputs}
+                    cargo test'';
+                in "${s}";
                 files = "\\.rs$";
                 pass_filenames = false;
               };

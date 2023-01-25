@@ -1,5 +1,4 @@
 result
 result-*
-.direnv
-*/flake.lock
-**/.pre-commit-config.yaml
+.direnv/
+.pre-commit-config.yaml

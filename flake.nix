@@ -11,8 +11,8 @@
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, pre-commit-hooks, ... }: with flake-utils.lib;
-    rec {
+  outputs = { self, nixpkgs, flake-utils, pre-commit-hooks, ... }:
+    {
       templates = rec {
         default = pre-commit;
         meta = {
@@ -36,17 +36,16 @@
           description = "Rust library with pre-ocommit checks";
         };
       };
-    }
-    // (eachDefaultSystem (system:
-      let pkgs = import nixpkgs { inherit system; }; in
-      {
+    } // (flake-utils.lib.eachDefaultSystem (system:
+      let pkgs = import nixpkgs { inherit system; };
+      in {
         checks = {
           pre-commit-check = pre-commit-hooks.lib.${system}.run {
             src = ./.;
             hooks = {
               deadnix.enable = true;
               nix-linter.enable = true;
-              nixpkgs-fmt.enable = true;
+              nixfmt.enable = true;
               statix.enable = true;
             };
           };
@@ -55,5 +54,9 @@
         devShells.default = pkgs.mkShell {
           inherit (self.checks.${system}.pre-commit-check) shellHook;
         };
+
+        formatter = pkgs.writeShellScriptBin "formatter" ''
+          ${pkgs.findutils}/bin/find . -name '*.nix' -exec ${pkgs.nixfmt}/bin/nixfmt {} \+
+        '';
       }));
 }

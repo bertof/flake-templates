@@ -13,9 +13,7 @@
     with flake-utils.lib;
     eachDefaultSystem (system:
       let pkgs = import nixpkgs { inherit system; };
-      in
-      rec
-      {
+      in rec {
         packages = flattenTree rec {
           default = hello;
           inherit (pkgs) hello;
@@ -25,9 +23,7 @@
           hello = mkApp { drv = packages.hello; };
         };
         devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [
-            self.packages.${system}.hello
-          ];
+          buildInputs = with pkgs; [ self.packages.${system}.hello ];
         };
       });
 }
