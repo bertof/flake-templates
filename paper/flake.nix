@@ -55,6 +55,19 @@
             -output-file ''${1:-biblio.bib} <(cat ''${1:-biblio.bib}) 
         '';
 
+        tidy_bibliography = pkgs.writeShellScript "tidy_bibliography" ''
+          ${pkgs.bibtex-tidy}/bin/bibtex-tidy \
+            --omit=doi,isbn,issn,url,abstract,bibtex_show,air,pdf \
+            --curly \
+            --numeric \
+            --tab \
+            --align=13 \
+            --duplicates=key,doi,citation \
+            --no-remove-dupe-fields \
+            --sort-fields \
+            --sort=-year export.bib && cp -i export.bib biblio.bib
+        '';
+
         pdf_builder = tex_file:
           let pdf_file = builtins.replaceStrings [ ".tex" ] [ ".pdf" ] tex_file;
           in pkgs.stdenvNoCC.mkDerivation {
@@ -65,7 +78,8 @@
             buildPhase = "${compile} ${tex_file}";
             installPhase = "install ${pdf_file} $out";
           };
-      in {
+      in
+      {
         packages = rec {
           # default = release;
           default = document;
@@ -84,30 +98,13 @@
         };
 
         apps = {
-          default = {
-            type = "app";
-            program = "${auto_compile}";
-          };
-          compile = {
-            type = "app";
-            program = "${compile}";
-          };
-          fast_compile = {
-            type = "app";
-            program = "${fast_compile}";
-          };
-          auto_compile = {
-            type = "app";
-            program = "${auto_compile}";
-          };
-          fast_auto_compile = {
-            type = "app";
-            program = "${fast_auto_compile}";
-          };
-          clean_bibliography = {
-            type = "app";
-            program = "${clean_bibliography}";
-          };
+          default = { type = "app"; program = "${auto_compile}"; };
+          compile = { type = "app"; program = "${compile}"; };
+          fast_compile = { type = "app"; program = "${fast_compile}"; };
+          auto_compile = { type = "app"; program = "${auto_compile}"; };
+          fast_auto_compile = { type = "app"; program = "${fast_auto_compile}"; };
+          clean_bibliography = { type = "app"; program = "${clean_bibliography}"; };
+          tidy_bibliography = { type = "app"; program = "${tidy_bibliography}"; };
         };
 
         checks = {
