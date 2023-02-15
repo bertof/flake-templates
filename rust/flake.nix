@@ -23,11 +23,15 @@
     in flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system overlays; };
-        minBuildInputs = with pkgs; [ cargo rustc stdenv.cc ];
+        minBuildInputs =
+          nixpkgs.lib.attrVals [ "cargo" "rustc" "stdenv.cc" ] pkgs;
       in with nixpkgs.lib; {
         checks = {
           pre-commit-check = pre-commit-hooks.lib.${system}.run {
-            src = ./.;
+            src = builtins.path {
+              path = ./.;
+              name = "flake-templates-src";
+            };
 
             tools = {
               rustfmt = pkgs.rustc;

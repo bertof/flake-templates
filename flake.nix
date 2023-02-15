@@ -41,7 +41,10 @@
       in {
         checks = {
           pre-commit-check = pre-commit-hooks.lib.${system}.run {
-            src = ./.;
+            src = builtins.path {
+              path = ./.;
+              name = "flake-templates-src";
+            };
             hooks = {
               deadnix.enable = true;
               nix-linter.enable = true;

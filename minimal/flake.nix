@@ -22,8 +22,7 @@
           default = hello;
           hello = mkApp { drv = packages.hello; };
         };
-        devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [ self.packages.${system}.hello ];
-        };
+        devShells.default =
+          pkgs.mkShell { buildInputs = [ self.packages.${system}.hello ]; };
       });
 }

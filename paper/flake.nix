@@ -78,8 +78,7 @@
             buildPhase = "${compile} ${tex_file}";
             installPhase = "install ${pdf_file} $out";
           };
-      in
-      {
+      in {
         packages = rec {
           # default = release;
           default = document;
@@ -98,18 +97,42 @@
         };
 
         apps = {
-          default = { type = "app"; program = "${auto_compile}"; };
-          compile = { type = "app"; program = "${compile}"; };
-          fast_compile = { type = "app"; program = "${fast_compile}"; };
-          auto_compile = { type = "app"; program = "${auto_compile}"; };
-          fast_auto_compile = { type = "app"; program = "${fast_auto_compile}"; };
-          clean_bibliography = { type = "app"; program = "${clean_bibliography}"; };
-          tidy_bibliography = { type = "app"; program = "${tidy_bibliography}"; };
+          default = {
+            type = "app";
+            program = "${auto_compile}";
+          };
+          compile = {
+            type = "app";
+            program = "${compile}";
+          };
+          fast_compile = {
+            type = "app";
+            program = "${fast_compile}";
+          };
+          auto_compile = {
+            type = "app";
+            program = "${auto_compile}";
+          };
+          fast_auto_compile = {
+            type = "app";
+            program = "${fast_auto_compile}";
+          };
+          clean_bibliography = {
+            type = "app";
+            program = "${clean_bibliography}";
+          };
+          tidy_bibliography = {
+            type = "app";
+            program = "${tidy_bibliography}";
+          };
         };
 
         checks = {
           pre-commit-check = pre-commit-hooks.lib.${system}.run {
-            src = ./.;
+            src = builtins.path {
+              path = ./.;
+              name = "flake-templates-src";
+            };
             hooks = {
               deadnix.enable = true;
               nix-linter.enable = true;
