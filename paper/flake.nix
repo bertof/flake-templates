@@ -147,7 +147,7 @@
               };
               nix-build = {
                 enable = true;
-                name = "nix build";
+                name = "nix build --no-link";
                 entry = "nix build";
                 files = "\\.(tex|pdf|tikz|png|jpg)";
                 pass_filenames = false;
