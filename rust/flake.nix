@@ -20,12 +20,14 @@
           };
         })
       ];
-    in flake-utils.lib.eachDefaultSystem (system:
+    in
+    flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system overlays; };
         minBuildInputs =
           nixpkgs.lib.attrVals [ "cargo" "rustc" "stdenv.cc" ] pkgs;
-      in with nixpkgs.lib; {
+      in
+      with nixpkgs.lib; {
         checks = {
           pre-commit-check = pre-commit-hooks.lib.${system}.run {
             src = builtins.path {
@@ -45,11 +47,13 @@
                 enable = true;
                 name = "cargo test";
                 description = "Test Rust code.";
-                entry = let
-                  s = pkgs.writeShellScript "cargo test" ''
-                    export PATH=${makeBinPath minBuildInputs}
-                    cargo test'';
-                in "${s}";
+                entry =
+                  let
+                    s = pkgs.writeShellScript "cargo test" ''
+                      export PATH=${makeBinPath minBuildInputs}
+                      cargo test'';
+                  in
+                  "${s}";
                 files = "\\.rs$";
                 pass_filenames = false;
               };

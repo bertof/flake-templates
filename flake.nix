@@ -15,14 +15,6 @@
     {
       templates = rec {
         default = pre-commit;
-        meta = {
-          path = ./meta;
-          description = "Common metadata files for flake based projects";
-        };
-        minimal = {
-          path = ./minimal;
-          description = "Minimal flake environment";
-        };
         pre-commit = {
           path = ./pre-commit;
           description = "Basic flake environment with pre-commit checks";
@@ -41,14 +33,10 @@
       in {
         checks = {
           pre-commit-check = pre-commit-hooks.lib.${system}.run {
-            src = builtins.path {
-              path = ./.;
-              name = "flake-templates-src";
-            };
+            src = builtins.path { name = "flake-templates-src"; path = ./.; };
             hooks = {
               deadnix.enable = true;
-              nix-linter.enable = true;
-              nixfmt.enable = true;
+              nixpkgs-fmt.enable = true;
               statix.enable = true;
             };
           };
@@ -58,8 +46,6 @@
           inherit (self.checks.${system}.pre-commit-check) shellHook;
         };
 
-        formatter = pkgs.writeShellScriptBin "formatter" ''
-          ${pkgs.findutils}/bin/find . -name '*.nix' -exec ${pkgs.nixfmt}/bin/nixfmt {} \+
-        '';
+        formatter = pkgs.nixpkgs-fmt;
       }));
 }
