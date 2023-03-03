@@ -12,23 +12,7 @@
   };
 
   outputs = { self, nixpkgs, flake-utils, pre-commit-hooks, ... }:
-    {
-      templates = rec {
-        default = pre-commit;
-        pre-commit = {
-          path = ./pre-commit;
-          description = "Basic flake environment with pre-commit checks";
-        };
-        paper = {
-          path = ./paper;
-          description = "Latex paper with pre-commit checks";
-        };
-        rust = {
-          path = ./rust;
-          description = "Rust library with pre-ocommit checks";
-        };
-      };
-    } // (flake-utils.lib.eachDefaultSystem (system:
+    (flake-utils.lib.eachDefaultSystem (system:
       let pkgs = import nixpkgs { inherit system; };
       in {
         checks = {
@@ -47,5 +31,25 @@
         };
 
         formatter = pkgs.nixpkgs-fmt;
-      }));
+      })) // {
+      templates = rec {
+        default = pre-commit;
+        paper = {
+          path = ./paper;
+          description = "Latex paper with pre-commit checks";
+        };
+        pre-commit = {
+          path = ./pre-commit;
+          description = "Basic flake environment with pre-commit checks";
+        };
+        python = {
+          path = ./python;
+          description = "Python with pre-commit checks";
+        };
+        rust = {
+          path = ./rust;
+          description = "Rust library with pre-commit checks";
+        };
+      };
+    };
 }
