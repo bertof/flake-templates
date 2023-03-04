@@ -12,32 +12,22 @@
     let
       extensions = [ "rust-src" ];
       targets = [ "x86_64-unknown-linux-gnu" "aarch64-unknown-linux-gnu" ];
-      overlays = [
-        rust-overlay.overlays.default
-        (_: super: {
-          rustc = super.rust-bin.stable.latest.default.override {
-            inherit extensions targets;
-          };
-        })
-      ];
+      overlays = [ rust-overlay.overlays.default ];
     in
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system overlays; };
-        minBuildInputs =
-          nixpkgs.lib.attrVals [ "cargo" "rustc" "stdenv.cc" ] pkgs;
+        rustc = pkgs.rust-bin.stable.latest.default.override { inherit extensions targets; };
+        minBuildInputs = [ rustc pkgs.cargo pkgs.stdenv.cc ];
       in
       with nixpkgs.lib; {
         checks = {
           pre-commit-check = pre-commit-hooks.lib.${system}.run {
-            src = builtins.path {
-              path = ./.;
-              name = "flake-templates-src";
-            };
+            src = builtins.path { name = "flake-templates-src"; path = ./.; };
 
             tools = {
-              rustfmt = pkgs.rustc;
-              clippy = pkgs.rustc;
+              rustfmt = rustc;
+              clippy = rustc;
             };
 
             hooks = {
@@ -58,7 +48,6 @@
                 pass_filenames = false;
               };
               deadnix.enable = true;
-              nix-linter.enable = true;
               nixpkgs-fmt.enable = true;
               statix.enable = true;
             };
