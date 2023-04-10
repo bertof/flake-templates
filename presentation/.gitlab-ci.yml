@@ -1,0 +1,14 @@
+image: docker.io/nixpkgs/nix-flakes
+
+stages:
+  - build
+
+build:
+  stage: build
+  script:
+    - nix build --print-build-logs
+    - cp -Lr result build_artifacts/
+  artifacts:
+    paths:
+      - build_artifacts/
+    expire_in: 1 week

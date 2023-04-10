@@ -38,6 +38,10 @@
           path = ./paper;
           description = "Latex paper with pre-commit checks";
         };
+        presentation = {
+          path = ./presentation;
+          description = "Latex presentation with pre-commit checks";
+        };
         pre-commit = {
           path = ./pre-commit;
           description = "Basic flake environment with pre-commit checks";
