@@ -25,7 +25,7 @@
       texScheme = pkgs.callPackage ./tex-env.nix {
         extraTexPackages = { inherit (pkgs.texlive) scheme-medium ieeetran; };
       };
-      textodite_jar = builtins.fetchurl {
+      textidote_jar = builtins.fetchurl {
         url = "https://github.com/sylvainhalle/textidote/releases/download/v0.8.3/textidote.jar";
         sha256 = "sha256:1ngf8bm8lfv551vqwgmgr85q17x20lfw0lwzz00x3a6m7b02r1h4";
       };
@@ -64,8 +64,8 @@
         ${pkgs.watchexec}/bin/watchexec -e nix,tex,bib 'nix run .#fast_compile ''${1:-main.tex}'
       '';
 
-      textodite = pkgs.writeShellScript "textodite" ''
-        ${pkgs.jre}/bin/java -jar ${textodite_jar} --output html --firstlang en --check en ''${1:-main.tex} > textodite.html
+      textidote = pkgs.writeShellScript "textidote" ''
+        ${pkgs.jre}/bin/java -jar ${textidote_jar} --output html --firstlang en --check en ''${1:-main.tex} > textidote.html
       '';
 
       bib_clean = pkgs.writeShellScript "bib_clean" ''
@@ -89,7 +89,7 @@
           --duplicates=key,doi,citation \
           --no-remove-dupe-fields \
           --sort-fields \
-          --sort=-year $1
+          --sort=-year ''${1:-biblio.bib}
       '';
 
       pdf_builder = { src ? ignored_source, tex_file ? "main.tex" }:
@@ -123,8 +123,8 @@
         fast_compile = { type = "app"; program = "${fast_compile}"; };
         auto_compile = { type = "app"; program = "${auto_compile}"; };
         auto_run = { type = "app"; program = "${auto_run}"; };
-        textodite = { type = "app"; program = "${textodite}"; };
-        bibclean = { type = "app"; program = "${bib_clean}"; };
+        textidote = { type = "app"; program = "${textidote}"; };
+        bib_clean = { type = "app"; program = "${bib_clean}"; };
         bib_tidy = { type = "app"; program = "${bib_tidy}"; };
       };
 
