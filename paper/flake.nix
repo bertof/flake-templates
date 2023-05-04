@@ -47,21 +47,14 @@
         latexmk -interaction=nonstopmode -pdflua ''${1:-main.tex}
       '';
 
-      fast_compile = pkgs.writeShellScript "compile_script" ''
-        ${tex_env_setup}
-        latexmk -interaction=nonstopmode -pdflua ''${1:-main.tex}
-      '';
-
       auto_compile = pkgs.writeShellScript "auto_compile_script" ''
         ${compile_cleanup} ''${1:-main.tex}
         ${compile} ''${1:-main.tex}
-        ${pkgs.watchexec}/bin/watchexec -e tex,bib ${fast_compile} ''${1:-main.tex}
+        ${pkgs.watchexec}/bin/watchexec -r -e tex,bib ${compile} ''${1:-main.tex}
       '';
 
       auto_run = pkgs.writeShellScript "auto_run" ''
-        ${compile_cleanup} ''${1:-main.tex}
-        ${compile} ''${1:-main.tex}
-        ${pkgs.watchexec}/bin/watchexec -e nix,tex,bib 'nix run .#fast_compile ''${1:-main.tex}'
+        ${pkgs.watchexec}/bin/watchexec -r -e nix 'nix run .#auto_compile ''${1:-main.tex}'
       '';
 
       textidote = pkgs.writeShellScript "textidote" ''
@@ -120,7 +113,6 @@
       apps = {
         default = { type = "app"; program = "${auto_compile}"; };
         compile = { type = "app"; program = "${compile}"; };
-        fast_compile = { type = "app"; program = "${fast_compile}"; };
         auto_compile = { type = "app"; program = "${auto_compile}"; };
         auto_run = { type = "app"; program = "${auto_run}"; };
         textidote = { type = "app"; program = "${textidote}"; };
