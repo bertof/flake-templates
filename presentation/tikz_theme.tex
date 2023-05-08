@@ -1,0 +1,37 @@
+\usetikzlibrary{
+	calc,
+	arrows.meta,
+	backgrounds,
+	calc,
+	fit,
+	positioning,
+	shadows,
+	shapes.arrows,
+	shapes.geometric,
+	shapes.symbols
+}
+
+\tikzset{%
+	base/.style = {
+			% minimum width=1cm, 
+			% minimum height=1cm, 
+			text centered,
+			% font=\sffamily,
+			inner sep=0.5em,
+		},
+	boxes/.style = {
+			base,
+			draw=black,
+			rectangle,
+			rounded corners
+		},
+	arrow_label/.style = {
+			base,
+			midway,
+			% sloped,
+			fill=white, anchor=center,
+		},
+	on slide/.code args={<#1>#2}{%
+			\only<#1>{\pgfkeysalso{#2}}%
+		},
+}

@@ -1,0 +1,41 @@
+\begin{tikzpicture}[align=center, auto, style={base}]
+	\begin{scope}[every node/.style={boxes, fill=Grey!10}]
+		\node (nssf) [] {\acrshort*{NSSF}\\\scriptsize\acrlong*{NSSF}};
+		\node (nef) [right = 0.5 of nssf] {\acrshort*{NEF}\\\scriptsize\acrlong*{NEF}};
+		\node (nrf) [right = 0.5 of nef]{\acrshort*{NRF}\\\scriptsize\acrlong*{NRF}};
+		\node (pcf) [right = 0.5 of nrf]{\acrshort*{PCF}\\\scriptsize\acrlong*{PCF}};
+		\node (ausf) at ($(nssf) + (-0.5,-2)$) [] {\acrshort*{AUSF}\\\scriptsize\acrlong*{AUSF}};
+		\node (amf) [right = 0.5 of ausf] {\acrshort*{AMF}\\\scriptsize\acrlong*{AMF}};
+		\node (smf) [right = 0.5 of amf] {\acrshort*{SMF}\\\scriptsize\acrlong*{SMF}};
+		\node (udm) [right = 0.5 of smf]{\acrshort*{UDM}\\\scriptsize\acrlong*{UDM}};
+		\uncover<2->{\node (other_nf) [right = 0.5 of udm] {Other \acrshort*{NF}s};}
+		\uncover<2->{\node (mec1) [right = 0.5 of pcf, fill=Orange!50] {\acrshort*{MEC}};}
+		\uncover<2->{\node (mec2) [right = 0.5 of mec1, fill=Orange!50] {\acrshort*{MEC}};}
+		\uncover<2->{\node (mec3) [right = 0.5 of mec2, fill=Orange!50] {\acrshort*{MEC}};}
+		\node (ran) [below = 1 of amf] {\acrshort*{RAN}\\\scriptsize\acrlong*{RAN}};
+		\node (ue) [left = 3 of ran, fill=OrangeRed!25] {\acrshort*{UE}\\\scriptsize\acrlong*{UE}};
+		\node (upf) [below = 1 of smf] {\acrshort*{UPF}\\\scriptsize\acrlong*{UPF}};
+	\end{scope}
+	\node (ladn) [
+		right = 4 of upf,
+		cloud,
+		aspect=2,
+		cloud puffs=13.7,
+		fill=YellowGreen!50,
+		inner sep=-0.5em,
+		draw
+	] {\acrshort*{LADN}\\\scriptsize\acrlong*{LADN}};
+
+	\only<1>{\draw [very thick] ($(ausf) + (-0.5,1)$) to ($(udm) + (0.5,1)$)};
+	\only<2->{\draw [very thick] ($(ausf) + (-0.5,1)$) to ($(mec3) + (0.5,-1)$)};
+	\foreach \i in {nssf,nef,nrf,pcf}{\draw [-Circle](\i) to ($(\i) + (0,-1.06)$);}
+	\foreach \i in {ausf,amf,smf,udm}{\draw [-Circle] (\i) to ($(\i) + (0,1.06)$);}
+	\uncover<2->{\foreach \i in {mec1,mec2,mec3}{\draw [-Circle](\i) to ($(\i) + (0,-1.06)$);}}
+	\uncover<2->{\foreach \i in {other_nf}{\draw [-Circle] (\i) to ($(\i) + (0,1.06)$);}}
+	\draw (ue) -- (amf) node [midway,fill=white,sloped,anchor=center] {N1};
+	\draw (ran) -- (amf) node [midway,fill=white,anchor=center] {N2};
+	\draw (ran) -- (upf) node [midway,fill=white,anchor=center] {N3};
+	\draw (upf) -- (ladn) node [midway,fill=white,anchor=center] {N6};
+	\draw (upf) -- (smf) node [midway,fill=white,anchor=center] {N4};
+	\draw (ue) to (ran);
+\end{tikzpicture}

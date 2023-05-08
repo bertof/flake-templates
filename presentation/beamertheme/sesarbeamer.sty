@@ -95,18 +95,18 @@
 
 % Put the logo in each slide's top left area
 \setbeamertemplate{headline}{
-	\vspace{0.25cm}
+	\vspace{0.75em}
 	\colorbox{white}{
-		\hspace{0.25cm}\includegraphics[width=3.5cm]{beamertheme/sesar_logo}
+		\hspace{0.5em}\includegraphics[height=2.5em]{beamertheme/sesar_logo}
 	}
 }
 
 % Define frame title and subtitle layout
 \setbeamertemplate{frametitle}{%
-	\vspace*{-0.75cm}
-	\begin{beamercolorbox}[leftskip=3.25cm]{frametitle}%
-		\usebeamerfont{frametitle}\insertframetitle\\
-		\usebeamerfont{framesubtitle}\insertframesubtitle
+	\vspace*{-1.5em}
+	\begin{beamercolorbox}[leftskip=6em]{frametitle}%
+		\usebeamerfont{framesubtitle}\insertframesubtitle\\\vspace{-0.25em}
+		\usebeamerfont{frametitle}\insertframetitle
 	\end{beamercolorbox}
 }
 
@@ -226,7 +226,7 @@
 		\begin{minipage}{\textwidth}
 			\usebeamercolor[fg]{normal text}
 			\centering
-			\Huge Q{\LARGE\&}A \\
+			\Huge Q{\LARGE\&}A \\ \vspace{1em}
 			\Large \textsl{Your questions and feedback \\ will be highly appreciated!}
 		\end{minipage}
 	\end{frame}
