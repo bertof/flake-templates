@@ -12,3 +12,15 @@ build:
     paths:
       - build_artifacts/
     expire_in: 1 week
+  interruptible: true
+
+pages:
+  stage: deploy
+  script:
+    - mkdir public
+    - cp -r build_artifacts/* public/
+  artifacts:
+    paths:
+      - public
+  only:
+   - main

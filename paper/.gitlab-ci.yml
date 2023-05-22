@@ -12,3 +12,4 @@ build:
     paths:
       - build_artifacts/
     expire_in: 1 week
+  interruptible: true
