@@ -1,0 +1,629 @@
+\usetheme{/sesarbeamer}
+
+\usepackage{cite}
+\usepackage{soul}
+
+\usepackage{qrcode}
+\usepackage{fontawesome,academicons}
+\usepackage{verbatim}
+
+\usepackage{adjustbox}
+\usepackage[acronym]{glossaries}
+
+\input{glossary}
+
+\usepackage{shellesc}
+\usepackage{tikz}
+\usetikzlibrary{external}
+\tikzexternalize % activate and define .cache/ as cache folder
+\input{tikz_theme}
+
+% meta-data
+\title{QoS-aware Deployment of Service Compositions in 5G-empowered Edge-Cloud Continuum}
+% \subtitle{A critical overview on protocols for cloud-ready applications}
+\author{
+	\href{mailto:marco.anisetti@unimi.it}{Marco Anisetti},
+	\href{mailto:filippo.berto@unimi.it}{\textbf{Filippo Berto}},
+	\href{mailto:ruslan.bondaruc@unimi.it}{Ruslan Bondaruc}\\
+	University of Milan, Italy\\
+	\{firstname.lastname\}@unimi.it
+}
+\date{July 5, 2023}
+% \titlebackground{images/background}
+
+% document body
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+\section{Scenario, Requirements and Architecture}
+
+\subsection{Requirements}
+
+\subsection{Deployment Architecture}
+
+\subsection{Cloud}
+
+\subsection{Telco Edge}
+
+\subsection{On-premises}
+
+\section{Methodology}
+
+\subsection{Annotated Service Composition Template}
+
+\subsection{Annotated Continuum Facilities Graph}
+
+\subsection{Deployment Matching}
+
+\subsection{Deployment Recipes}
+
+\section{Experimental Evaluation}
+
+\subsection{Experimental Setup}
+
+\subsection{Performance Evaluation}
+
+\section{Conclusions}
+
+\backmatter
+
+% \section{A bit on myself}
+
+% \begin{frame}{Filippo Berto}
+% 	Ph.D. candidate in Computer Science @ SESAR Lab, University of Milan\vspace{1em}
+
+% 	Working on:
+% 	\begin{itemize}
+% 		\item Formal methods for Security/QoS assurance of infrastructures and services
+% 		\item Cloud-edge computing infrastructures
+% 		\item 5G services and 5G-enabled edge computing
+% 	\end{itemize}\vspace{1em}
+
+% 	Having fun with distributed computing, cloud networks, programming languages for safety critical applications, embedded programming
+% \end{frame}
+
+% \qrslide{LINK TO THE SLIDES}{https://bit.ly/ct-protocols}
+
+% \section{Application layer protocols}
+
+% \begin{frame}
+% 	\centering
+% 	{\Large\faPencil\quad What is a communication protocol?}\vspace{1em}
+
+% 	\uncover<2->{
+% 		A communication protocol is a set of \alert{rules} and \alert{conventions} that govern the exchange of \alert{information} between two or more entities, ensuring \alert{consistent} and \alert{structured} communication.
+% 	}
+% \end{frame}
+
+% \begin{frame}{Where are we}
+% 	\begin{columns}
+% 		\begin{column}{.6\textwidth}
+% 			High level protocols:\vspace{1em}
+% 			\begin{itemize}
+% 				\item We rely on the lower level infrastructure (caching, SDNs, routing, \ldots)
+% 				\item Simpler abstractions for the developer
+% 				\item We can concentrate on the data and its usage in the services
+% 			\end{itemize}
+% 		\end{column}
+% 		\begin{column}{.3\textwidth}
+% 			\inputtikz{images/iso_osi.tex}
+% 		\end{column}
+% 	\end{columns}
+% \end{frame}
+
+% \begin{frame}{Today's question}
+% 	I'm building a new service that communicates with other services (web UI, smartphone application, IoT device, worker nodes, \ldots).\vspace{1em}
+
+% 	\begin{center}
+% 		\Large
+% 		\uncover<2->{\faPencil\quad Which protocols should I use?} \only<3->{And how?}
+% 	\end{center}
+% \end{frame}
+
+% \section{HTTP-based}
+
+% \begin{frame}{How good are they?}
+% 	We can use HTTP as our carrier protocol: \vspace{1em}
+
+% 	\begin{columns}[t]
+% 		\begin{column}{.5\textwidth}
+% 			{\large \alert{Advantages}}
+% 			\begin{itemize}
+% 				\item It's a very versatile protocol (handles binary and text-encoded data)
+% 				\item HTTP is (mostly) a simple and versatile protocol
+% 				\item Easily integrates with web browsers/applications
+% 				\item Handles download and upload of binary files
+% 				\item Newer versions also handle streams
+% 			\end{itemize}
+% 		\end{column}
+% 		\begin{column}{.5\textwidth}
+% 			{\large \alert{Disadvantages}}
+% 			\begin{itemize}
+% 				\item Specification is lager and more complex each version
+% 				\item Security delegated to transport layer
+% 				\item A connection is kept open until for the full session
+% 				\item Text-encoded information has to be parsed
+% 				\item Stateless protocol: state management is delegated to the application
+% 				\item Caching may introduce inconsistent behavior
+% 			\end{itemize}
+% 		\end{column}
+% 	\end{columns}
+% \end{frame}
+
+% \section{SOAP}
+
+% \begin{frame}[fragile]{Request}
+% 	Soap is an XML based protocol for exchanging structured data. It can be encapsulated with HTTP and other protocols. \vspace{1em}
+
+% 	\alert{Request}:
+% 	\scriptsize
+% 	\begin{verbatim}
+% 		POST /StockQuote HTTP/1.1
+% 		Host: www.stockquoteserver.com
+% 		Content-Type: text/xml;
+% 		charset="utf-8"
+% 		Content-Length: nnnn
+% 		SOAPAction: "Some-URI"
+% 		<?xml version="1.0"?>
+% 		<SOAP-ENV:Envelope
+% 		    xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+% 		    SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+% 		    <SOAP-ENV:Body>
+% 		        <m:GetLastTradePrice xmlns:m="Some-URI">
+% 		            <symbol>DIS</symbol>
+% 		        </m:GetLastTradePrice>
+% 		    </SOAP-ENV:Body>
+% 		</SOAP-ENV:Envelope>
+% 	\end{verbatim}
+% \end{frame}
+
+% \begin{frame}[fragile]{Response}
+% 	Soap is an XML based protocol for exchanging structured data. It can be encapsulated with HTTP and other protocols. \vspace{1em}
+
+% 	\alert{Response}:
+% 	\scriptsize
+% 	\begin{verbatim}
+% 		HTTP/1.1 200 OK
+% 		Content-Type: text/xml;
+% 		charset="utf-8"
+% 		Content-Length: nnnn
+% 		<?xml version="1.0"?>
+% 		<SOAP-ENV:Envelope
+% 		  xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+% 		  SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+% 		  <SOAP-ENV:Body>
+% 		    <m:GetLastTradePriceResponse xmlns:m="Some-URI">
+% 		      <Price>34.5</Price>
+% 		    </m:GetLastTradePriceResponse>
+% 		  </SOAP-ENV:Body>
+% 		</SOAP-ENV:Envelope>
+% 	\end{verbatim}
+% \end{frame}
+
+% \begin{frame}[fragile]{Critique}
+% 	SOAP has many disadvantages:
+% 	\vspace{1em}
+% 	\begin{itemize}
+% 		\item HUGE overhead
+% 		\item Complex implementation with strict semantics
+% 		\item Hard to parse (and read)
+% 		\item Error-prone if human-generated
+% 	\end{itemize}
+% 	\vspace{1em}
+% 	Use it only for backward compatibility with older systems.
+% \end{frame}
+
+% \section{REST}
+
+% \begin{frame}[fragile]{Request \& Response}
+% 	\begin{columns}
+% 		\begin{column}{.5\textwidth}
+% 			\begin{itemize}
+% 				\item \textbf{\texttt{GET}}: HTTP method (or verb), describes the intended action
+% 				\item \textbf{\texttt{/api/users/123}}: endpoint of the request that indicates the resource
+% 				\item \textbf{\texttt{example.com}}: hostname of the server, can be used to differentiate and redirect requests
+% 				\item \textbf{\texttt{application/json}}: format of the response requested by the client and provided by the server
+% 			\end{itemize}
+% 		\end{column}
+% 		\begin{column}{.5\textwidth}
+% 			\alert{Request}:
+% 			{
+% 			\footnotesize
+% 			\begin{verbatim}
+% 				GET /api/users/123 HTTP/1.1
+% 				Host: example.com
+% 				Accept: application/json
+% 			\end{verbatim}
+% 			}
+% 			\vspace{1em}
+
+% 			\alert{Response}:
+% 			{
+% 			\footnotesize
+% 			\begin{verbatim}
+% 				HTTP/1.1 200 OK
+% 				Content-Type: application/json
+
+% 				{
+% 				  "id": 123,
+% 				  "name": "John Doe",
+% 				  "email": "johndoe@example.com"
+% 				}
+% 			\end{verbatim}
+% 			}
+% 		\end{column}
+% 	\end{columns}
+% \end{frame}
+
+% \begin{frame}{Verbs}
+% 	REST uses HTTP verbs and URL components to define semantics on requests.
+% 	\vspace{1em}
+% 	\begin{itemize}
+% 		\item \alert{\textbf{GET}}: used to retrieve a representation of a resource or a collection of resources.
+% 		\item \alert{\textbf{POST}}: used to submit data to be processed and create a new resource.
+% 		\item \alert{\textbf{PUT}}: used to update or replace an existing resource with the data sent in the request.
+% 		\item \alert{\textbf{PATCH}}: used to partially update an existing resource.
+% 		\item \alert{\textbf{DELETE}}: used to remove a specific resource identified by its URL or identifier.
+% 	\end{itemize}
+% 	\vspace{1em}
+% 	GET should not have any side effects. GET and PUT should be idempotent.
+% \end{frame}
+
+% \begin{frame}{Endpoints}
+% 	Endpoints in REST model resources as a tree, where each component is a branch.
+% 	\uncover<2->{Resource model $\not=$ data model}.
+% 	\vspace{1em}
+% 	\begin{itemize}[<+(2)->]
+% 		\item \alert{\texttt{/users}}: a collection of users (i.e., usernames)
+% 		\item \alert{\texttt{/users/:username}}: a specific user
+% 		\item \alert{\texttt{/users/:username/profile\_picture}}: a specific user's profile picture
+% 		\item \alert{\texttt{/users/:username/posts}}: a specific user's collection of posts (i.e., IDs)
+% 	\end{itemize}
+% 	\vspace{1em}
+% 	Having a consistent and robust naming strategy improves transparency and readability.
+% \end{frame}
+
+% \begin{frame}{Endpoints best practices}
+% 	Some best practices for your resource models:
+% 	\vspace{1em}
+% 	\begin{itemize}[<+->]
+% 		\item Collections of resources use plural names \codesample{GET /device-manager/devices}
+% 		\item Use dashes (\texttt{-}) to improve readability \codesample{GET /device-manager/devices/:id}
+% 		\item Don't use trailing slashes (\texttt{/}) \codesample{GET /device-manager/devices/:id\alert{/}}
+% 		\item Use only lowercase letters \codesample{GET /ThIsIsUnReadable/pLeasE/DonT}
+% 	\end{itemize}
+% 	\vspace{1em}
+% 	Having a consistent and robust naming strategy improves transparency and readability.
+% \end{frame}
+
+% \begin{frame}{Query arguments}
+% 	Query arguments are \alert{optional} arguments that are used to filter the results:
+% 	\vspace{1em}
+% 	\begin{itemize}[<+->]
+% 		\item \codesample{GET /device-manager/devices\alert{?active=true}}
+% 		\item \codesample{GET /users\alert{?follow=user1,user2}}
+% 		\item \codesample{GET /users/:username/posts\alert{?limit=25\&page=3}}
+% 	\end{itemize}
+% 	\vspace{1em}
+% 	Query parameters should be optional. If not, use body arguments or change your resource model.
+% \end{frame}
+
+% \begin{frame}[fragile]{JSON as body}
+% 	The most common data format used in REST requests is JSON (defined in ECMA-404), a simple and lightweight serialization format that can describe:
+% 	\begin{columns}
+% 		\begin{column}{.5\textwidth}
+% 			\begin{itemize}
+% 				\item Integers
+% 				\item Floating point numbers
+% 				\item Strings
+% 				\item Lists of values
+% 				\item String-value maps
+% 			\end{itemize}
+% 		\end{column}
+% 		\begin{column}{.5\textwidth}
+% 			\begin{verbatim}
+% 				{
+% 				    "id": 123,
+% 				    "name": "John Doe",
+% 				    "email": "johndoe@example.com",
+% 				    "firends": [314,2425,242],
+% 				    "popularity": 123.34
+% 				}
+% 			\end{verbatim}
+% 		\end{column}
+% 	\end{columns}
+% 	\vspace{1em}
+% 	JSON is a fairly efficient format that is easy to parse and to read.
+
+% 	Use JSON-encoded request and response bodies to combine multiple information.
+% \end{frame}
+
+% \begin{frame}{Some best practices}
+% 	Some best practices for your resource models:
+% 	\vspace{1em}
+% 	\begin{itemize}[<+->]
+% 		\item Use nouns to represent resources and HTTP verbs to indicate actions
+% 		\item ``Store'' resources use fixed URIs for their contents, don't change them after they're once set \codesample{GET /stickers/:id/preview}
+% 		\item ``Controller'' resources expose interactions as resources using verbs \codesample{POST /voting-pool/:id/vote}
+% 	\end{itemize}
+% 	\vspace{1em}
+% 	Having a consistent and robust naming strategy improves transparency and readability.
+% \end{frame}
+
+% \section{GraphQL}
+
+% \begin{frame}{What happens when systems become complex?}
+% 	\begin{itemize}[<+->]
+% 		\item Data collection becomes \alert{complex}
+% 		      \begin{itemize}[<.->]
+% 			      \item Parallelize requests at the expense of \alert{latency} and \alert{bandwidth} usage
+% 		      \end{itemize}
+% 		\item Resources become complex
+% 		      \begin{itemize}[<.->]
+% 			      \item We split resources in larger hierarchies $\rightarrow$ more complex resource model
+% 			      \item We only want part of the resources body $\rightarrow$ query hell
+% 		      \end{itemize}
+% 		\item Documentation and version management?
+% 	\end{itemize}
+% \end{frame}
+
+% \begin{frame}{A strongly typed language for data querying}
+% 	\begin{itemize}[<+->]
+% 		\item GraphQL uses \alert{strong type}-based hierarchies to define the resource model.
+% 		\item Resources have \alert{attributes} and \alert{methods} like in common object-oriented programming languages.
+% 		\item Clients specify exactly \alert{what data} they need and the \alert{shape} of the response.
+% 		\item GraphQL also supports data updates through \alert{``mutations''}.
+% 		\item Clients can fetch \alert{real-time updates} through subscriptions, simplifying querying live data sources.
+% 		\item GraphQL framework expose the \alert{resource schema}, allowing for consistent \alert{code-driven documentation}.
+% 	\end{itemize}
+% \end{frame}
+
+% \begin{frame}[fragile]{What about performance?}
+% 	\begin{columns}
+% 		\begin{column}{.4\textwidth}
+% 			GraphQL allows you to \alert{combine queries}, reducing the number of network requests and moving most of the execution to the \alert{server side}. \vspace{1em}
+
+% 			Moreover, the hierarchical structure of resources allows \alert{parallel evaluation}, where possible.
+% 		\end{column}
+% 		\begin{column}{.6\textwidth}
+% 			\scriptsize
+% 			\begin{verbatim}
+%                 {
+%                   location(id: "32") {
+%                     id
+%                     name
+%                     latitude
+%                     longitude
+%                     altitude
+%                     measurements(paging: { limit: 10 }) {
+%                       id
+%                       value
+%                       sensor {
+%                         sensorType
+%                         unit
+%                       }
+%                     }
+%                   }
+%                 }
+% 			\end{verbatim}
+% 		\end{column}
+% 	\end{columns}
+% \end{frame}
+
+% \begin{frame}[fragile]{Mutations}
+% 	\begin{columns}
+% 		\begin{column}{.4\textwidth}
+% 			Data update is achieved through mutations.
+
+% 			Moreover, the hierarchical structure of resources allows \alert{parallel evaluation}, where possible.
+% 		\end{column}
+% 		\begin{column}{.6\textwidth}
+% 			\scriptsize
+% 			\begin{verbatim}
+% 				mutation insertTestMeasurement {
+% 				    insertMeasurements(measurements:[{
+% 				        insertionAgent:"test-agent",
+% 				        location:  {id: "test-location"},
+% 				        sensor: {id: "test-sensor", sensorType: "test-sensor"},
+% 				        value: 123456.789,
+% 				    }])
+% 				}
+% 			\end{verbatim}
+% 		\end{column}
+% 	\end{columns}
+% \end{frame}
+
+% \qrslide{DEMO}{https://bit.ly/3BQKwXq}
+
+% \section{gRPC}
+
+% \begin{frame}{Protobuf based wire protocol}
+% 	\begin{center}
+% 		{\Large\faPencil\quad What if the focus is performance?}
+% 	\end{center}
+% 	\vspace{1em}
+
+% 	We move to wire-based protocols:
+% 	\begin{itemize}
+% 		\item \alert{Binary representation} saves us time in the parsing step
+% 		\item \alert{Out-of-message protocol definition} saves more space
+% 		\item (Close to) optimal \alert{data representation} and \alert{packing}
+% 	\end{itemize}
+
+% 	gRPC is one of the most used in the industry for its performance and features.
+% \end{frame}
+
+% \begin{frame}{Key features}
+% 	\begin{itemize}[<+->]
+% 		\item \alert{Fast \& efficient}: uses Protobuf for interface definition and binary serialization format
+% 		\item \alert{Bi-directional Streaming}: supports unary and streaming communication patterns
+% 		\item \alert{Support for multiple transport protocols}: default is HTTP/2, with support for multiplexing, flow control and header compression
+% 		\item \alert{Code and documentation generation}: language-specific protocol libraries are generated at compile time, ensuring type safe communication
+% 		\item \alert{Default values are omitted}: values are encoded only if they differ from the default, saving space
+% 	\end{itemize}
+% \end{frame}
+
+% \begin{frame}[fragile]{Example protocol definition}
+% 	\begin{columns}
+% 		\begin{column}{.7\textwidth}
+% 			\scriptsize
+% 			\begin{verbatim}
+% 				syntax = "proto3";
+
+% 				package example;
+
+% 				service UserService {
+% 				  rpc GetUser(UserRequest) returns (UserResponse) {}
+% 				  rpc UpdateUser(UserUpdateRequest) returns (UserResponse) {}
+% 				  rpc DeleteUser(UserDeleteRequest) returns (UserResponse) {}
+% 				}
+
+% 				message UserRequest {
+% 				  string user_id = 1;
+% 				}
+
+% 				message UserUpdateRequest {
+% 				  string user_id = 1;
+% 				  string name = 2;
+% 				  int32 age = 3;
+% 				}
+% 			\end{verbatim}
+% 		\end{column}
+% 		\begin{column}{.3\textwidth}
+% 			\scriptsize
+% 			\begin{verbatim}
+% 				message UserDeleteRequest {
+% 				  string user_id = 1;
+% 				}
+
+% 				message UserResponse {
+% 				  string user_id = 1;
+% 				  string name = 2;
+% 				  int32 age = 3;
+% 				}
+% 			\end{verbatim}
+% 		\end{column}
+% 	\end{columns}
+% \end{frame}
+
+% \section{Best practices}
+
+% \begin{frame}{Self documenting APIs}
+% 	\begin{center}
+% 		{\Large\faPencil\quad How do we handle documentation?}
+% 	\end{center}
+% 	\vspace{1em}
+% 	\begin{itemize}
+% 		\item REST $\rightarrow$ \alert{OpenAPI}: generated API description, interactive documentation, client SDK, API testing and validation
+% 		\item GraphQL $\rightarrow$ \alert{in protocol}: GraphQL can expose its internal resource model schema through a standard API endpoint
+% 		\item gRPC $\rightarrow$ \alert{in protocol}: a \texttt{.proto} file is shared across environments and provides both API types and documentation. Messages can be parsed without knowing the protocol definition.
+% 	\end{itemize}
+% \end{frame}
+
+% \begin{frame}{Input/Model checking}
+% 	\begin{center}
+% 		{\Large\faPencil\quad What if the focus is performance?}
+% 	\end{center}
+% 	\vspace{1em}
+% 	\begin{itemize}
+% 		\item REST $\rightarrow$ \alert{Language or JSON schema}: JSON messages can be type checked using strongly-typed parsing or JSON schema definitions
+% 		\item GraphQL $\rightarrow$ \alert{in protocol}: GraphQL requires exchanged messages to match the schema types definitions
+% 		\item gRPC $\rightarrow$ \alert{in protocol}: Protobuf-encoded messages are strongly typed and checked during parsing
+% 	\end{itemize}
+% \end{frame}
+
+% \begin{frame}{Versioning and deprecation}
+% 	\begin{center}
+% 		{\Large\faPencil\quad How do we handle API versioning and deprecation?}
+% 	\end{center}
+% 	\vspace{1em}
+% 	\begin{itemize}
+% 		\item REST $\rightarrow$ \alert{no standard solution}: versioning is achieved through URL, query parameter, header or content negotiation matching.
+% 		\item GraphQL \& gRPC $\rightarrow$ \alert{in protocol}: GraphQL and Protobuf have built-in support for deprecation and new methods/attributes can be added without breaking changes. Protobuf also allows \texttt{oneof} type definitions, allowing types extensions.
+% 	\end{itemize}
+% 	\vspace{1em}
+% 	A versioning and deprecation plan should be defined early in development.
+% \end{frame}
+
+% \begin{frame}{Logging and error tracking}
+% 	\begin{center}
+% 		{\Large\faPencil\quad How should we handle logs and track errors?}
+% 	\end{center}
+% 	\vspace{1em}
+% 	Logging and tracing are very language dependent, but some common solutions are available:
+% 	\begin{itemize}[<+->]
+% 		\item \alert{Strict adherence} to \alert{HTTP status codes} meaning and \alert{JSON structured errors} provide additional context on the issues
+% 		\item Logs can be used to correlate errors and to better understand the system and its users. Log information on \alert{request evaluation}, including all sub-evaluations i.e., time, order, \ldots
+% 		\item \alert{Span-based logging} can help tagging logs with contextual information
+% 		\item \alert{Logs and errors collection services} (Sentry, Elasticsearch, Graylog, \ldots) provide you with a centralized system to store, query and analyze the data obtained by your services and can help automate error managment
+% 		\item \alert{Metrics logging} solutions such as Prometheus and OpenTelemetry can help you collect and analyze performance data over time
+% 	\end{itemize}
+% \end{frame}
+
+% \begin{frame}{Services rollout}
+% 	\begin{center}
+% 		{\Large\faPencil\quad How to handle changes in services implementation?}
+% 	\end{center}
+% 	\vspace{1em}
+% 	\begin{itemize}[<+->]
+% 		\item \alert{Partial rollout} of a new version using \alert{sticky sessions} allows you to handle A-B testing on a large scale
+% 		\item \alert{Automated regression testing} prevents most common development errors. \alert{Performance-focused regression} testing gives you a clear idea on the impact of the recent changes
+% 	\end{itemize}
+% \end{frame}
+
+% \backmatter
+
+% \section{Research in SESAR Lab}
+
+% \begin{frame}{Research topics}
+
+% 	Working on:
+% 	\begin{itemize}
+% 		\item Formal methods for Security/QoS assurance of infrastructures and services
+% 		\item Cloud-edge computing infrastructures (Services, Big Data, Networks, \ldots)
+% 		\item 5G services and 5G-enabled edge computing
+% 		\item Assurance of the binary pipeline
+% 	\end{itemize}
+
+% \end{frame}
+
+% \begin{frame}{Project proposals}
+% 	\begin{itemize}
+% 		\item \textbf{A non-functional property verification framework based on OpenTelemetry}: \quad Developing a verification framework for web services and interfacing it with OpenTelemetry's API.
+% 		\item \textbf{Graph-based API composition for web services: Analysis and POC}: \quad Exploring a plugin based solution for OpenAPI and GraphQL based APIs composition.
+% 		\item \textbf{Nix-based big data engine containerization}: \quad Maximising the replicability of our big data infrastructure by migrating to a Nix based container solution, using a completely stateless toolchain that reduces dependency risks.
+% 	\end{itemize}
+% \end{frame}
+
+% \allreferences[Publications]{biblio.bib}
+
+% \begin{frame}{Contacts}{~}
+% 	\begin{columns}
+% 		\begin{column}{0.6\textwidth}
+% 			\centering
+% 			\href{mailto:filippo.berto@unimi.it}{\faEnvelope\enskip\texttt{filippo.berto@unimi.it}} \\\vspace{2em}
+% 			\href{https://orcid.org/0000-0002-2720-608X}{\aiOrcid}\quad
+% 			\href{https://scholar.google.com/citations?user=8IkjOZEAAAAJ}{\aiGoogleScholarSquare}\quad
+% 			\href{https://www.researchgate.net/profile/Filippo-Berto-2}{\aiResearchGateSquare}\quad
+% 			\href{https://twitter.com/bertof_}{\faTwitter}\quad
+% 			\href{https://www.linkedin.com/in/bertof}{\faLinkedin}\quad
+% 			\href{https://www.Gitlab.com/in/bertof}{\faGitlab}\quad
+% 			\href{https://www.Github.com/in/bertof}{\faGithub}\quad
+% 		\end{column}
+
+% 		\begin{column}{0.4\textwidth}
+% 			\centering
+% 			\qrcode{https://homes.di.unimi.it/berto} \\\vspace{2em}
+% 			\url{homes.di.unimi.it/berto}
+% 		\end{column}
+% 	\end{columns}
+% \end{frame}
+
+\end{document}
+
+
+
+

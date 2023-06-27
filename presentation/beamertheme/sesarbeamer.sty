@@ -3,6 +3,8 @@
 \RequirePackage{etoolbox}
 \RequirePackage{tikz}
 \RequirePackage{listings}
+\RequirePackage{ifthen}
+\RequirePackage{qrcode}
 
 % Force 16:9 aspect ratio
 \RequirePackage{geometry}
@@ -97,7 +99,7 @@
 \setbeamertemplate{headline}{
 	\vspace{0.75em}
 	\colorbox{white}{
-		\hspace{0.5em}\includegraphics[height=2.5em]{beamertheme/sesar_logo}
+		\hspace*{0.5em}\includegraphics[height=2.5em]{beamertheme/sesar_logo}
 	}
 }
 
@@ -105,8 +107,16 @@
 \setbeamertemplate{frametitle}{%
 	\vspace*{-1.5em}
 	\begin{beamercolorbox}[leftskip=6em]{frametitle}%
-		\usebeamerfont{framesubtitle}\insertframesubtitle\\\vspace{-0.25em}
-		\usebeamerfont{frametitle}\insertframetitle
+		% \usebeamerfont{framesubtitle}\insertframesubtitle
+		% \\\vspace{-0.25em} % Add newline if framesubtitle is not empty
+		% \usebeamerfont{frametitle}\insertframetitle
+		\vspace*{\fill}% Center vertically
+		\insertframetitle
+		\ifx\insertframesubtitle\empty\else
+			\\[0.1ex] % Add vertical space between title and subtitle
+			\usebeamerfont{framesubtitle}\insertframesubtitle
+		\fi
+		\vspace*{\fill} % Center vertically
 	\end{beamercolorbox}
 }
 
@@ -165,58 +175,101 @@
 	\endgroup
 }
 
-\newenvironment{chapter}[3][]{% Args: image (optional), color, frame title
-	\begingroup
-	\themecolor{blue}
-	\setbeamertemplate{footline}{}
-	\ifstrequal{#2}{sesargreen}{ % Use blue text on light green, else white
-		\setbeamercolor{frametitle}{fg=sesarblue}
-		\setbeamercolor{normal text}{fg=sesarblue,bg=#2}
-	}{
-		\setbeamercolor{frametitle}{fg=white}
-		\setbeamercolor{normal text}{fg=white,bg=#2}
-	}
-	\ifstrempty{#1}{}{\setbeamertemplate{background}{\TikzSplitSlide{#1}}}
-	\setbeamertemplate{frametitle}{%
-		\vspace*{8ex}
-		\begin{beamercolorbox}[wd=0.45\textwidth]{frametitle}
-			\usebeamerfont{frametitle}\insertframetitle\\
-			\usebeamerfont{framesubtitle}\insertframesubtitle
-		\end{beamercolorbox}
-	}
-	\begin{frame}{#3}
-		\hspace*{0.05\textwidth}%
-		\minipage{0.35\textwidth}%
-		\usebeamercolor[fg]{normal text}%
-		}{%
-		\endminipage
-	\end{frame}
-	\endgroup
-}
+% \newenvironment{chapter}[3][]{% Args: image (optional), color, frame title
+% 	\begingroup
+% 	\themecolor{blue}
+% 	\setbeamertemplate{footline}{}
+% 	\ifstrequal{#2}{sesargreen}{ % Use blue text on light green, else white
+% 		\setbeamercolor{frametitle}{fg=sesarblue}
+% 		\setbeamercolor{normal text}{fg=sesarblue,bg=#2}
+% 	}{
+% 		\setbeamercolor{frametitle}{fg=white}
+% 		\setbeamercolor{normal text}{fg=white,bg=#2}
+% 	}
+% 	\ifstrempty{#1}{}{\setbeamertemplate{background}{\TikzSplitSlide{#1}}}
+% 	\setbeamertemplate{frametitle}{%
+% 		\vspace*{8ex}
+% 		\begin{beamercolorbox}[wd=0.45\textwidth]{frametitle}
+% 			\usebeamerfont{frametitle}\insertframetitle
+% 			\ifx\insertframesubtitle\empty
+% 			\else
+% 				\\\vspace{-0.25em} % Add newline if framesubtitle is not empty
+% 			\fi
+% 			\usebeamerfont{framesubtitle}\insertframesubtitle
+% 		\end{beamercolorbox}
+% 	}
+% 	\begin{frame}{#3}
+% 		\hspace*{0.05\textwidth}%
+% 		\minipage{0.35\textwidth}%
+% 		\usebeamercolor[fg]{normal text}%
+% 		}{%
+% 		\endminipage
+% 	\end{frame}
+% 	\endgroup
+% }
 
-\newenvironment{sidepic}[2]{% Args: image, frame title
-	\begingroup
-	\setbeamertemplate{background}{%
-		\hspace*{0.6\paperwidth}%
-		\includegraphics[height=\paperheight]{#1}%
-	}
-	\setbeamertemplate{frametitle}{% Same as normal, but with right skip
-		\vspace*{-3.5ex}
-		\begin{beamercolorbox}[leftskip=2cm,rightskip=0.4\textwidth]{frametitle}%
-			\usebeamerfont{frametitle}\insertframetitle\\
-			\usebeamerfont{framesubtitle}\insertframesubtitle
-		\end{beamercolorbox}
-	}
-	\begin{frame}{#2}
-		\minipage{0.6\textwidth}%
-		}{%
-		\endminipage
-	\end{frame}
-	\endgroup
-}
+% \newenvironment{sidepic}[2]{% Args: image, frame title
+% 	\begingroup
+% 	\setbeamertemplate{background}{%
+% 		\hspace*{0.6\paperwidth}%
+% 		\includegraphics[height=\paperheight]{#1}%
+% 	}
+% 	\setbeamertemplate{frametitle}{% Same as normal, but with right skip
+% 		\vspace*{-3.5ex}
+% 		\begin{beamercolorbox}[leftskip=2cm,rightskip=0.4\textwidth]{frametitle}%
+% 			\usebeamerfont{frametitle}\insertframetitle
+% 			\ifx\insertframesubtitle\empty
+% 			\else
+% 				\\ % Add newline if framesubtitle is not empty
+% 			\fi
+% 			\usebeamerfont{framesubtitle}\insertframesubtitle
+% 		\end{beamercolorbox}
+
+% 	}
+% 	\begin{frame}{#2}
+% 		\minipage{0.6\textwidth}%
+% 		}{%
+% 		\endminipage
+% 	\end{frame}
+% 	\endgroup
+% }
 
 \newcommand{\@SESARmotto}{}
 \newcommand{\setmotto}{\renewcommand{\@SESARmotto}}
+
+\newcommand{\somereferences}[3][References]{
+	\begingroup
+	\setbeamertemplate{footline}{}
+	% \themecolor{blue}
+	\begin{frame}[allowframebreaks]{#1}{~}
+		\centering
+		\nocite{#3}
+		\bibliographystyle{IEEEtran}\small
+		\bibliography{#2}
+	\end{frame}
+	\endgroup
+}
+
+\newcommand{\allreferences}[3][References]{\somereferences[#1]{#2}{*}}
+
+\newcommand{\qrslide}[2]{
+	\begin{frame}{}{}
+		\centering
+		{
+			\usebeamerfont{frametitle}
+			\textcolor{sesarblue}{#1}
+		}
+		\\\vspace{2em}
+		\qrcode{#2}
+		\\\vspace{2em}
+		{
+			\usebeamercolor{framesubtitle}
+			\Large
+			\texttt{#2}
+		}
+	\end{frame}
+}
+
 \newcommand{\backmatter}{
 	\begingroup
 	\setbeamertemplate{footline}{}
@@ -232,6 +285,8 @@
 	\end{frame}
 	\endgroup
 }
+
+\newcommand{\codesample}[1]{\colorbox{sesaryellow}{\scriptsize\texttt{#1}}}
 
 % MY CUSTOMIZATION
 

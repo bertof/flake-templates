@@ -2,6 +2,7 @@ image: docker.io/nixpkgs/nix-flakes
 
 stages:
   - build
+  - deploy
 
 build:
   stage: build

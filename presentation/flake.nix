@@ -15,7 +15,6 @@
     };
   };
 
-
   outputs = { self, nixpkgs, flake-utils, pre-commit-hooks, gitignore }: flake-utils.lib.eachDefaultSystem (system:
     let
       source_path = builtins.path { path = ./.; name = "paper-src"; };
@@ -23,7 +22,7 @@
       pkgs = import nixpkgs { inherit system; };
       texScheme = pkgs.texlive.combined.scheme-full;
       # texScheme = pkgs.callPackage ./tex-env.nix {
-      #   extraTexPackages = { inherit (pkgs.texlive) scheme-medium; };
+      #   extraTexPackages = { inherit (pkgs.texlive) scheme-medium ieeetran; };
       # };
       textidote_jar = builtins.fetchurl {
         url = "https://github.com/sylvainhalle/textidote/releases/download/v0.8.3/textidote.jar";
@@ -31,7 +30,7 @@
       };
 
       tex_env_setup = ''
-        export PATH="${pkgs.lib.makeBinPath [texScheme pkgs.coreutils]}";
+        export PATH="${pkgs.lib.makeBinPath [texScheme pkgs.coreutils pkgs.ncurses]}";
         export TEXMFHOME=.cache
         export TEXMFVAR=.cache/texmf-var
         mkdir -p $TEXMFVAR
@@ -44,24 +43,17 @@
 
       compile = pkgs.writeShellScript "compile_script" ''
         ${tex_env_setup}
-        latexmk -interaction=nonstopmode -pdflua ''${1:-main.tex}
-      '';
-
-      fast_compile = pkgs.writeShellScript "compile_script" ''
-        ${tex_env_setup}
-        latexmk -interaction=nonstopmode -pdflua ''${1:-main.tex}
+        latexmk -interaction=nonstopmode -pdflua -shell-escape ''${1:-main.tex}
       '';
 
       auto_compile = pkgs.writeShellScript "auto_compile_script" ''
         ${compile_cleanup} ''${1:-main.tex}
         ${compile} ''${1:-main.tex}
-        ${pkgs.watchexec}/bin/watchexec -e tex,bib,cls,sty ${fast_compile} ''${1:-main.tex}
+        ${pkgs.watchexec}/bin/watchexec -r -e tex,bib ${compile} ''${1:-main.tex}
       '';
 
       auto_run = pkgs.writeShellScript "auto_run" ''
-        ${compile_cleanup} ''${1:-main.tex}
-        ${compile} ''${1:-main.tex}
-        ${pkgs.watchexec}/bin/watchexec -e nix,tex,bib,cls,sty 'nix run .#fast_compile ''${1:-main.tex}'
+        ${pkgs.watchexec}/bin/watchexec -r -e nix 'nix run .#auto_compile ''${1:-main.tex}'
       '';
 
       textidote = pkgs.writeShellScript "textidote" ''
@@ -107,7 +99,7 @@
     {
       packages = rec {
         default = release;
-        document = pdf_builder { tex_file = "main.tex"; };
+        document = pdf_builder { tex_file = "main-handout.tex"; };
         # biography = pdf_builder { tex_file = "bibliography.tex"; };
         # coverletter = pdf_builder { tex_file = "coverletter.tex"; };
         release = pkgs.linkFarm "paper" [
@@ -120,7 +112,6 @@
       apps = {
         default = { type = "app"; program = "${auto_compile}"; };
         compile = { type = "app"; program = "${compile}"; };
-        fast_compile = { type = "app"; program = "${fast_compile}"; };
         auto_compile = { type = "app"; program = "${auto_compile}"; };
         auto_run = { type = "app"; program = "${auto_run}"; };
         textidote = { type = "app"; program = "${textidote}"; };
