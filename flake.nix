@@ -33,7 +33,7 @@
         formatter = pkgs.nixpkgs-fmt;
       })) // {
       templates = rec {
-        default = pre-commit;
+        default = basic;
         paper = {
           path = ./paper;
           description = "Latex paper with pre-commit checks";
@@ -42,8 +42,8 @@
           path = ./presentation;
           description = "Latex presentation with pre-commit checks";
         };
-        pre-commit = {
-          path = ./pre-commit;
+        basic = {
+          path = ./basic;
           description = "Basic flake environment with pre-commit checks";
         };
         python = {
