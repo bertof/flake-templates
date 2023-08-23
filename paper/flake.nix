@@ -15,53 +15,43 @@
     };
   };
 
-
   outputs = { self, nixpkgs, flake-utils, pre-commit-hooks, gitignore }: flake-utils.lib.eachDefaultSystem (system:
     let
       source_path = builtins.path { path = ./.; name = "paper-src"; };
       ignored_source = gitignore.lib.gitignoreSource source_path;
       pkgs = import nixpkgs { inherit system; };
-      # texScheme = pkgs.texlive.combined.scheme-full;
-      texScheme = pkgs.callPackage ./tex-env.nix {
-        extraTexPackages = { inherit (pkgs.texlive) scheme-medium ieeetran; };
-      };
+      texScheme = pkgs.texlive.combined.scheme-full;
+      # texScheme = pkgs.callPackage ./tex-env.nix {
+      #   extraTexPackages = { inherit (pkgs.texlive) scheme-medium ieeetran; };
+      # };
       textidote_jar = builtins.fetchurl {
         url = "https://github.com/sylvainhalle/textidote/releases/download/v0.8.3/textidote.jar";
         sha256 = "sha256:1ngf8bm8lfv551vqwgmgr85q17x20lfw0lwzz00x3a6m7b02r1h4";
       };
 
-      tex_env_setup = ''
-        export PATH="${pkgs.lib.makeBinPath [texScheme pkgs.coreutils]}";
-        export TEXMFHOME=.cache
-        export TEXMFVAR=.cache/texmf-var
-        mkdir -p $TEXMFVAR
-      '';
-
-      compile_cleanup = pkgs.writeShellScript "compile_cleanup" ''
-        ${tex_env_setup}
-        latexmk -c ''${1:-main.tex}
-      '';
-
-      compile = pkgs.writeShellScript "compile_script" ''
-        ${tex_env_setup}
-        latexmk -interaction=nonstopmode -pdflua ''${1:-main.tex}
-      '';
+      cleanup = "latexmk -c $@";
+      compile = "latexmk -interaction=nonstopmode -pdflua $@";
 
       auto_compile = pkgs.writeShellScript "auto_compile_script" ''
-        ${compile_cleanup} ''${1:-main.tex}
-        ${compile} ''${1:-main.tex}
-        ${pkgs.watchexec}/bin/watchexec -r -e tex,bib ${compile} ''${1:-main.tex}
+        PATH=$PATH:${pkgs.lib.makeBinPath [ texScheme ]}
+        ${cleanup} ''${1:-main}
+        ${compile} ''${1:-main}
+        ${pkgs.watchexec}/bin/watchexec -r -e tex,bib ${compile} ''${1:-main}
       '';
 
       auto_run = pkgs.writeShellScript "auto_run" ''
-        ${pkgs.watchexec}/bin/watchexec -r -e nix 'nix run .#auto_compile ''${1:-main.tex}'
+        ${pkgs.watchexec}/bin/watchexec -r -e nix 'nix run .#auto_compile ''${1:-main}'
       '';
 
-      textidote = pkgs.writeShellScript "textidote" ''
-        ${pkgs.jre}/bin/java -jar ${textidote_jar} --output html --firstlang en --check en ''${1:-main.tex} > textidote.html
+      textidote = pkgs.writeShellScript "textidote-default" ''
+        ${pkgs.jre}/bin/java -jar ${textidote_jar} --output html --firstlang en --check en ''${1:-main} > textidote.html
       '';
 
-      bib_clean = pkgs.writeShellScript "bib_clean" ''
+      bibexport = pkgs.writeShellScript "bibexport_script" ''
+        ${texScheme}/bin/bibexport $@
+      '';
+
+      bibclean = pkgs.writeShellScript "bibclean-default" ''
         ${pkgs.bibclean}/bin/bibclean \
           -align-equals \
           -brace-protect \
@@ -72,7 +62,7 @@
           -output-file ''${1:-biblio.bib} <(cat ''${1:-biblio.bib}) 
       '';
 
-      bib_tidy = pkgs.writeShellScript "bib_tidy" ''
+      bib-tidy = pkgs.writeShellScript "bib-tidy-default" ''
         ${pkgs.bibtex-tidy}/bin/bibtex-tidy \
           --omit=doi,isbn,issn,url,abstract,bibtex_show,air,pdf \
           --curly \
@@ -85,14 +75,15 @@
           --sort=-year ''${1:-biblio.bib}
       '';
 
-      pdf_builder = { src ? ignored_source, tex_file ? "main.tex" }:
+      pdf_builder = { src ? ignored_source, tex_file ? "main" }:
         let
-          pdf_file = builtins.replaceStrings [ ".tex" ] [ ".pdf" ] tex_file;
+          pdf_file = "${builtins.replaceStrings [ ".tex" ] [ ".pdf" ] tex_file}.pdf";
         in
         pkgs.stdenvNoCC.mkDerivation {
           name = "${pdf_file}";
           inherit src;
-          buildInputs = [ texScheme pkgs.coreutils ];
+          TEXMFCACHE = ".cache/";
+          buildInputs = [ texScheme ];
           buildPhase = "${compile} ${tex_file}";
           installPhase = "install ${pdf_file} $out";
         };
@@ -100,7 +91,7 @@
     {
       packages = rec {
         default = release;
-        document = pdf_builder { tex_file = "main.tex"; };
+        document = pdf_builder { };
         # biography = pdf_builder { tex_file = "bibliography.tex"; };
         # coverletter = pdf_builder { tex_file = "coverletter.tex"; };
         release = pkgs.linkFarm "paper" [
@@ -112,12 +103,12 @@
 
       apps = {
         default = { type = "app"; program = "${auto_compile}"; };
-        compile = { type = "app"; program = "${compile}"; };
         auto_compile = { type = "app"; program = "${auto_compile}"; };
         auto_run = { type = "app"; program = "${auto_run}"; };
+        bibexport = { type = "app"; program = "${bibexport}"; };
         textidote = { type = "app"; program = "${textidote}"; };
-        bib_clean = { type = "app"; program = "${bib_clean}"; };
-        bib_tidy = { type = "app"; program = "${bib_tidy}"; };
+        bib_clean = { type = "app"; program = "${bibclean}"; };
+        bib_tidy = { type = "app"; program = "${bib-tidy}"; };
       };
 
       checks = {
@@ -152,7 +143,7 @@
       };
 
       devShells.default = pkgs.mkShell {
-        buildInputs = [ texScheme pkgs.watchexec ];
+        buildInputs = [ texScheme ];
         shellHook = ''
           ${self.checks.${system}.pre-commit-check.shellHook}
         '';

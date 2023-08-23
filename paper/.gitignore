@@ -6,6 +6,7 @@ textidote.html
 result*
 
 main.pdf
+*.bib.*
 
 # Created by https://www.toptal.com/developers/gitignore/api/latex,git
 # Edit at https://www.toptal.com/developers/gitignore?templates=latex,git
