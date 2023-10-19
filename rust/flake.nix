@@ -37,41 +37,46 @@
           inherit system;
           overlays = [
             inputs.rust-overlay.overlays.default
-            (self: _super: rec {
-              clippy = rustc;
+            (self: _super: {
               rustc = self.rust-bin.stable.latest.default.override {
                 extensions = [ "rust-src" ];
                 targets = [ "x86_64-unknown-linux-gnu" "aarch64-unknown-linux-gnu" ];
               };
-              rustfmt = rustc;
             })
           ];
           # config.allowUnfree = true;
         };
 
+        packages = { inherit (pkgs) statix; };
 
         pre-commit = {
-          inherit pkgs;
-          settings.hooks = {
-            deadnix.enable = true;
-            nixpkgs-fmt.enable = true;
-            statix.enable = true;
+          settings = {
+            hooks = {
+              deadnix.enable = true;
+              nixpkgs-fmt.enable = true;
+              statix.enable = true;
 
-            clippy.enable = true;
-            rustfmt.enable = true;
-            cargo-test = {
-              enable = true;
-              name = "cargo test";
-              description = "Test Rust code.";
-              entry =
-                let
-                  s = pkgs.writeShellScript "cargo test" ''
-                    export PATH=${lib.makeBinPath minBuildInputs}
-                    cargo test'';
-                in
-                "${s}";
-              files = "\\.rs$";
-              pass_filenames = false;
+              clippy.enable = true;
+              rustfmt.enable = true;
+              cargo-test = {
+                enable = true;
+                name = "cargo test";
+                description = "Test Rust code.";
+                entry =
+                  let
+                    s = pkgs.writeShellScript "cargo test" ''
+                      export PATH=${lib.makeBinPath minBuildInputs}
+                      cargo test'';
+                  in
+                  "${s}";
+                files = "\\.rs$";
+                pass_filenames = false;
+              };
+            };
+            tools = {
+              cargo = lib.mkForce pkgs.rustc;
+              clippy = lib.mkForce pkgs.rustc;
+              rustfmt = lib.mkForce pkgs.rustc;
             };
           };
         };
