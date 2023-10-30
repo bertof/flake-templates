@@ -56,7 +56,7 @@
             ${pkgs.jre}/bin/java -jar ${textidote_jar} --output html --firstlang en --check en ''${@:-main.tex} > textidote.html
           '';
           bibexport = pkgs.writeShellScript "bibexport_script" ''
-            ${texScheme}/bin/bibexport $@
+            ${pkgs.texlive.combined.scheme-full}/bin/bibexport ''${@:-main}
           '';
           bibclean = pkgs.writeShellScript "bibclean-default" ''
             ${pkgs.bibclean}/bin/bibclean \
