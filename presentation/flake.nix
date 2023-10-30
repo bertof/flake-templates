@@ -15,142 +15,183 @@
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, pre-commit-hooks, gitignore }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = inputs:
     let
-      source_path = builtins.path { path = ./.; name = "paper-src"; };
-      ignored_source = gitignore.lib.gitignoreSource source_path;
-      pkgs = import nixpkgs { inherit system; };
-      texScheme = pkgs.texlive.combined.scheme-full;
-      # texScheme = pkgs.callPackage ./tex-env.nix {
-      #   extraTexPackages = { inherit (pkgs.texlive) scheme-medium ieeetran; };
-      # };
-      textidote_jar = builtins.fetchurl {
-        url = "https://github.com/sylvainhalle/textidote/releases/download/v0.8.3/textidote.jar";
-        sha256 = "sha256:1ngf8bm8lfv551vqwgmgr85q17x20lfw0lwzz00x3a6m7b02r1h4";
-      };
-
-      cleanup = "latexmk -c $@";
-      compile = "latexmk -interaction=nonstopmode -pdflua $@";
-
-      auto_compile = pkgs.writeShellScript "auto_compile_script" ''
-        PATH=$PATH:${pkgs.lib.makeBinPath [ texScheme ]}
-        ${cleanup} ''${1:-main}
-        ${compile} ''${1:-main}
-        ${pkgs.watchexec}/bin/watchexec -r -e tex,bib ${compile} ''${1:-main}
-      '';
-
-      auto_run = pkgs.writeShellScript "auto_run" ''
-        ${pkgs.watchexec}/bin/watchexec -r -e nix 'nix run .#auto_compile ''${1:-main}'
-      '';
-
-      textidote = pkgs.writeShellScript "textidote-default" ''
-        ${pkgs.jre}/bin/java -jar ${textidote_jar} --output html --firstlang en --check en ''${1:-main} > textidote.html
-      '';
-
-      bibexport = pkgs.writeShellScript "bibexport_script" ''
-        ${texScheme}/bin/bibexport $@
-      '';
-
-      bibclean = pkgs.writeShellScript "bibclean-default" ''
-        ${pkgs.bibclean}/bin/bibclean \
-          -align-equals \
-          -brace-protect \
-          -check-values \
-          -fix-accents \
-          -fix-initials \
-          -fix-names \
-          -output-file ''${1:-biblio.bib} <(cat ''${1:-biblio.bib}) 
-      '';
-
-      bib-tidy = pkgs.writeShellScript "bib-tidy-default" ''
-        ${pkgs.bibtex-tidy}/bin/bibtex-tidy \
-          --omit=doi,isbn,issn,url,abstract,bibtex_show,air,pdf \
-          --curly \
-          --numeric \
-          --tab \
-          --align=13 \
-          --duplicates=key,doi,citation \
-          --no-remove-dupe-fields \
-          --sort-fields \
-          --sort=-year ''${1:-biblio.bib}
-      '';
-
-
-      pdf_builder = { src ? ignored_source, tex_file ? "main" }:
-        let
-          pdf_file = "${builtins.replaceStrings [ ".tex" ] [ ".pdf" ] tex_file}.pdf";
-        in
-        pkgs.stdenvNoCC.mkDerivation {
-          name = "${pdf_file}";
-          inherit src;
-          TEXMFCACHE = ".cache/";
-          buildInputs = [ texScheme ];
-          buildPhase = "${compile} ${tex_file}";
-          installPhase = "install ${pdf_file} $out";
-        };
+      ignored_source = inputs.gitignore.lib.gitignoreSource ./.;
     in
-    {
-      packages = rec {
-        default = release;
-        handout = pdf_builder { tex_file = "main-handout.tex"; };
-        slides = pdf_builder { tex_file = "main.tex"; };
-        # biography = pdf_builder { tex_file = "bibliography.tex"; };
-        # coverletter = pdf_builder { tex_file = "coverletter.tex"; };
-        release = pkgs.linkFarm "paper" [
-          { name = "handout.pdf"; path = handout; }
-          { name = "slides.pdf"; path = slides; }
-          # { name = "coverletter.pdf"; path = coverletter; }
-        ];
-      };
-
-      apps = {
-        default = { type = "app"; program = "${auto_compile}"; };
-        auto_compile = { type = "app"; program = "${auto_compile}"; };
-        auto_run = { type = "app"; program = "${auto_run}"; };
-        bibexport = { type = "app"; program = "${bibexport}"; };
-        textidote = { type = "app"; program = "${textidote}"; };
-        bib_clean = { type = "app"; program = "${bibclean}"; };
-        bib_tidy = { type = "app"; program = "${bib-tidy}"; };
-      };
-
-      checks = {
-        pre-commit-check = pre-commit-hooks.lib.${system}.run {
-          src = ignored_source;
-          tools = {
-            chktex = texScheme;
-            latexindent = texScheme;
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = import inputs.systems;
+      imports = [ inputs.pre-commit-hooks-nix.flakeModule ];
+      perSystem =
+        { config
+          # , self'
+          # , inputs'
+        , pkgs
+          # , system
+        , lib
+        , ...
+        }:
+        let
+          textidote_jar = builtins.fetchurl {
+            url = "https://github.com/sylvainhalle/textidote/releases/download/v0.8.3/textidote.jar";
+            sha256 = "sha256:1ngf8bm8lfv551vqwgmgr85q17x20lfw0lwzz00x3a6m7b02r1h4";
           };
-          hooks = {
-            deadnix.enable = true;
-            nixpkgs-fmt.enable = true;
-            statix.enable = true;
-            chktex.enable = true;
-            latexindent.enable = true;
-            ci-lint = {
-              enable = true;
-              name = "ci lint";
-              entry = "${pkgs.glab}/bin/glab ci lint";
-              files = "\\.gitlab-ci.yml";
-              pass_filenames = false;
-            };
-            nix-build = {
-              enable = true;
-              name = "nix build";
-              entry = "nix build --no-link";
-              files = "\\.(tex|pdf|tikz|png|jpg)";
-              pass_filenames = false;
+          texScheme = pkgs.texlive.combined.scheme-full;
+          latexmk_args = "-pdflua";
+          cleanup = pkgs.writeShellScript "cleanup" ''
+            set -e
+            PATH=$PATH:${pkgs.lib.makeBinPath [ texScheme ]}
+            latexmk -c ${latexmk_args} ''${@:-main}
+          '';
+          compile = pkgs.writeShellScript "compile" ''
+            set -e
+            PATH=$PATH:${pkgs.lib.makeBinPath [ texScheme ]}
+            latexmk -interaction=nonstopmode ${latexmk_args} ''${@:-main}
+          '';
+          continuous_compile = pkgs.writeShellScript "continuous_compile" ''
+            set -e
+            PATH=$PATH:${pkgs.lib.makeBinPath [ texScheme ]}
+            latexmk -interaction=nonstopmode -pvc -synctex=1 ${latexmk_args} ''${@:-main}
+          '';
+          auto_run = pkgs.writeShellScript "auto_run" ''
+            set -e
+            ${pkgs.watchexec}/bin/watchexec -r -e nix 'nix run .#continuous_compile ''${@:-main}'
+          '';
+          textidote = pkgs.writeShellScript "textidote-default" ''
+            ${pkgs.jre}/bin/java -jar ${textidote_jar} --output html --firstlang en --check en ''${@:-main.tex} > textidote.html
+          '';
+          bibexport = pkgs.writeShellScript "bibexport_script" ''
+            ${texScheme}/bin/bibexport $@
+          '';
+          bibclean = pkgs.writeShellScript "bibclean-default" ''
+            ${pkgs.bibclean}/bin/bibclean \
+              -align-equals \
+              -brace-protect \
+              -check-values \
+              -fix-accents \
+              -fix-initials \
+              -fix-names \
+              -output-file ''${1:-biblio.bib} <(cat ''${1:-biblio.bib}) 
+          '';
+          bib-tidy = pkgs.writeShellScript "bib-tidy-default" ''
+            ${pkgs.bibtex-tidy}/bin/bibtex-tidy \
+            --omit=doi,isbn,issn,url,bibtex_show,air,pdf,urldate \
+            --curly \
+            --numeric \
+            --tab \
+            --months \
+            --duplicates=key,doi,citation \
+            --no-remove-dupe-fields \
+            --sort-fields \
+            --sort=-year \
+            --strip-comments \
+            --remove-empty-fields \
+            --wrap=1000 \
+            --modify ''${@:-biblio.bib}
+          '';
+        in
+        {
+          # Per-system attributes can be defined here. The self' and inputs'
+          # module parameters provide easy access to attributes of the same
+          # system.
+
+          # # This sets `pkgs` to a nixpkgs with allowUnfree option set.
+          # _module.args.pkgs = import inputs.nixpkgs {
+          #   inherit system;
+          #   overlays = [
+          #     (self: _super: rec { })
+          #   ];
+          #   # config.allowUnfree = true;
+          # };
+
+          pre-commit = {
+            inherit pkgs;
+            settings = {
+              hooks = {
+                deadnix.enable = true;
+                nixpkgs-fmt.enable = true;
+                statix.enable = true;
+
+                chktex.enable = true;
+                latexindent.enable = true;
+
+                ci-lint = {
+                  enable = true;
+                  name = "ci lint";
+                  entry = "${pkgs.glab}/bin/glab ci lint";
+                  files = "\\.gitlab-ci.yml";
+                  pass_filenames = false;
+                };
+                nix-build = {
+                  enable = true;
+                  name = "nix build";
+                  entry = "nix build --no-link --print-build-logs";
+                  files = "\\.(tex|pdf|tikz|png|jpg)";
+                  pass_filenames = false;
+                };
+              };
             };
           };
+
+          packages =
+            let
+              pdf_builder = { src ? ignored_source, tex_file }:
+                let
+                  pdf_file = "${builtins.replaceStrings [ ".tex" ] [ ".pdf" ] tex_file}.pdf";
+                in
+                pkgs.stdenvNoCC.mkDerivation {
+                  name = "${pdf_file}";
+                  inherit src;
+                  TEXMFCACHE = ".cache/";
+                  buildInputs = [ texScheme ];
+                  buildPhase = ''
+                    ${compile} ${tex_file}
+                    makeglossaries ${tex_file}
+                    ${compile} ${tex_file}
+                  '';
+                  installPhase = "install ${pdf_file} $out";
+                };
+            in
+            rec {
+              inherit texScheme;
+              default = release;
+              # document = pdf_builder { tex_file = "main"; };
+              # biography = pdf_builder { tex_file = "bibliography"; };
+              # coverletter = pdf_builder { tex_file = "coverletter"; };
+              handout = pdf_builder { tex_file = "main-handout"; };
+              slides = pdf_builder { tex_file = "main"; };
+              release = pkgs.linkFarm "release" [
+                # { name = "document.pdf"; path = document; }
+                # { name = "coverletter.pdf"; path = coverletter; }
+                { name = "handout.pdf"; path = handout; }
+                { name = "slides.pdf"; path = slides; }
+              ];
+            };
+
+          apps = {
+            auto_run = { type = "app"; program = "${auto_run}"; };
+            bib_clean = { type = "app"; program = "${bibclean}"; };
+            bibexport = { type = "app"; program = "${bibexport}"; };
+            bib_tidy = { type = "app"; program = "${bib-tidy}"; };
+            cleanup = { type = "app"; program = "${cleanup}"; };
+            continuous_compile = { type = "app"; program = "${continuous_compile}"; };
+            default = { type = "app"; program = "${continuous_compile}"; };
+            textidote = { type = "app"; program = "${textidote}"; };
+          };
+
+          devShells.default = pkgs.mkShell {
+            packages = [ texScheme ];
+            shellHook = ''
+              ${config.pre-commit.installationScript}
+            '';
+          };
+
+          formatter = pkgs.nixpkgs-fmt;
         };
+      flake = {
+        # The usual flake attributes can be defined here, including system-
+        # agnostic ones like nixosModule and system-enumerating ones, although
+        # those are more easily expressed in perSystem.
       };
-
-      devShells.default = pkgs.mkShell {
-        buildInputs = [ texScheme ];
-        shellHook = ''
-          ${self.checks.${system}.pre-commit-check.shellHook}
-        '';
-      };
-
-      formatter = pkgs.nixpkgs-fmt;
-    });
+    };
 }
