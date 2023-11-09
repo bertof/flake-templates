@@ -2,37 +2,35 @@
   description = "A collection of project templates";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    flake-parts.url = "github:hercules-ci/flake-parts";
     jupyenv.url = "github:tweag/jupyenv";
-    pre-commit-hooks = {
-      url = "github:cachix/pre-commit-hooks.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
-    };
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    pre-commit-hooks-nix.url = "github:cachix/pre-commit-hooks.nix";
+    systems.url = "github:nix-systems/default";
   };
 
-  outputs = inputs@ { self, nixpkgs, flake-utils, pre-commit-hooks, ... }:
-    (flake-utils.lib.eachDefaultSystem (system:
-      let pkgs = import nixpkgs { inherit system; };
-      in {
-        checks = {
-          pre-commit-check = pre-commit-hooks.lib.${system}.run {
-            src = builtins.path { name = "flake-templates-src"; path = ./.; };
-            hooks = {
-              deadnix.enable = true;
-              nixpkgs-fmt.enable = true;
-              statix.enable = true;
-            };
+  outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+    systems = import inputs.systems;
+    imports = [ inputs.pre-commit-hooks-nix.flakeModule ];
+    perSystem = { config, pkgs, ... }: {
+      devShells.default = pkgs.mkShell {
+        shellHook = ''
+          ${config.pre-commit.installationScript}
+        '';
+      };
+      pre-commit = {
+        inherit pkgs;
+        settings = {
+          hooks = {
+            deadnix.enable = true;
+            nixpkgs-fmt.enable = true;
+            statix.enable = true;
           };
         };
-
-        devShells.default = pkgs.mkShell {
-          inherit (self.checks.${system}.pre-commit-check) shellHook;
-        };
-
-        formatter = pkgs.nixpkgs-fmt;
-      })) // {
+      };
+      formatter = pkgs.nixpkgs-fmt;
+    };
+    flake = {
       templates = rec {
         default = basic;
         paper = {
@@ -58,4 +56,5 @@
         jupyenv = inputs.jupyenv.templates.default;
       };
     };
+  };
 }
