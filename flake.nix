@@ -4,6 +4,7 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    jupyenv.url = "github:tweag/jupyenv";
     pre-commit-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -11,7 +12,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, pre-commit-hooks, ... }:
+  outputs = inputs@ { self, nixpkgs, flake-utils, pre-commit-hooks, ... }:
     (flake-utils.lib.eachDefaultSystem (system:
       let pkgs = import nixpkgs { inherit system; };
       in {
@@ -54,6 +55,7 @@
           path = ./rust;
           description = "Rust library with pre-commit checks";
         };
+        jupyenv = inputs.jupyenv.templates.default;
       };
     };
 }
