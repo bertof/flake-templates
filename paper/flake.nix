@@ -1,5 +1,5 @@
 {
-  description = "Thesis flake";
+  description = "Paper flake";
 
   inputs = {
     dotfiles.url = "gitlab:bertof/nix-dotfiles";
