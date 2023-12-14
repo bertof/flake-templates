@@ -1,0 +1,40 @@
+\usepackage[usenames,dvipsnames,svgnames]{xcolor} % Enabling colors by their 'svgnames'
+\usepackage{tikz}
+\usetikzlibrary{
+	arrows.meta,
+	backgrounds,
+	calc,
+	calc,
+	fit,
+	positioning,
+	shadows,
+	shapes.arrows,
+	shapes.geometric,
+	shapes.symbols
+}
+\tikzset{%
+	base/.style = {
+			% minimum width=1cm, 
+			% minimum height=1cm, 
+			text centered,
+			% font=\sffamily,
+			inner sep=0.5em,
+		},
+	boxes/.style = {
+			base,
+			draw=black,
+			rectangle,
+		},
+	rboxes/.style = {
+			boxes,
+			rounded corners
+		},
+	arrow_label/.style = {
+			base,
+			midway,
+			% sloped,
+			fill=white, anchor=center,
+			inner sep=0.25em
+		}
+}
+
