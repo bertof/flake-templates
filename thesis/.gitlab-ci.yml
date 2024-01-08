@@ -1,0 +1,15 @@
+image: docker.io/nixpkgs/nix-flakes
+
+stages:
+  - build
+
+build:
+  stage: build
+  script:
+    - nix build --option substituters "http://nix-cache.cluster.sesar.int https://cache.nixos.org" --print-build-logs
+    - cp -Lr result build_artifacts/
+  artifacts:
+    paths:
+      - build_artifacts/
+    expire_in: 1 week
+  interruptible: true

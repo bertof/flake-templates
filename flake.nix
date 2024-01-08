@@ -41,6 +41,10 @@
           path = ./presentation;
           description = "Latex presentation with pre-commit checks";
         };
+        thesis = {
+          path = ./thesis;
+          description = "Latex thesis with pre-commit checks";
+        };
         basic = {
           path = ./basic;
           description = "Basic flake environment with pre-commit checks";

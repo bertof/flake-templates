@@ -1,0 +1,180 @@
+\documentclass{scrbook}
+\usepackage{fontspec} % Enable full UTF-8 support
+% \KOMAoption{DIV}{20}
+
+\KOMAoptions{
+	% DIV=20,
+	paper=a4, 
+	fontsize=11pt,
+	twoside=true,
+	headings=openright,
+	parskip=full,
+	chapterprefix=true,
+	bibliography=totoc,
+	listof=totoc,
+	listof=entryprefix,
+	titlepage=firstiscover,
+	captions=tableabove,
+	headings=standardclasses,
+	% draft=true
+}
+\addtokomafont{title}{\normalfont\rmfamily}
+\addtokomafont{subject}{\normalfont\rmfamily}
+% \setkomafont{author}{\normalsize}
+% \addtokomafont{disposition}{\rmfamily}
+% \addtokomafont{disposition}{\normalfont}
+\RedeclareSectionCommands[beforeskip=1em]{paragraph,subparagraph,subsection}
+\renewcommand*{\coverpageleftmargin}{5em} % cover page margins
+\renewcommand*{\coverpagerightmargin}{5em} % cover page margins
+
+\PassOptionsToPackage{hyphens}{url}\usepackage[
+	hidelinks,
+	pdfauthor={<TODO FIRST NAME> <TODO LAST NAME>},
+	pdftitle={<TODO THESIS TITLE>}
+]{hyperref}
+
+\usepackage{mathtools,amsthm,amsfonts,mathabx,pifont}
+\usepackage{cite,usebib}
+
+% % BIB REFERENCE
+% \newbibfield{title}
+% \newbibfield{author}
+% \newbibfield{journal}
+% \newbibfield{booktitle}
+% \newbibfield{pages}
+% \newbibfield{abstract}
+% \bibinput{biblio}
+
+% % BLIND TEXT
+% \usepackage{blindtext}
+
+% GLOSSARIES
+\usepackage[acronym,toc]{glossaries}
+\usepackage{glossary-mcols}
+\loadglsentries{glossary}
+\makeglossaries{}
+
+% PSEUDOCODE
+\usepackage{algorithm} % Used for algorithm blocks
+\usepackage[noend]{algpseudocode} % For pseudocode
+\algnewcommand{\AlgLineComment}[1]{\State{} \(\triangleright\) #1}
+\algnewcommand{\AlgForIn}[2]{\For{#1\textbf{ in }#2}}
+\algnewcommand{\AlgFalse}[1]{\textbf{false}}
+\algnewcommand{\AlgTrue}[1]{\textbf{true}}
+
+% LISTINGS
+\usepackage{listings}
+
+% CUSTOM COMMANDS
+\usepackage{soul}
+\DeclareRobustCommand{\hlmarco}[1]{{\sethlcolor{cyan}\hl{Marco: #1}}}
+\DeclareRobustCommand{\hlclaudio}[1]{{\sethlcolor{orange}\hl{Ruslan: #1}}}
+\DeclareRobustCommand{\hlfilippo}[1]{{\sethlcolor{green}\hl{Filippo: #1}}}
+
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+
+\newcommand{\angled}[1]{\ensuremath{\langle #1\rangle}}
+\newcommand{\bigangled}[1]{\ensuremath{\big\langle #1 \big\rangle}}
+\newcommand{\bigsquared}[1]{\ensuremath{\big[ #1 \big]}}
+\newcommand{\tuple}[1]{\ensuremath{(#1)}}
+\newcommand{\interval}[2]{\ensuremath{[#1,#2]}}
+
+% CONSTANTS
+% \usepackage{constants}
+% \newconstantfamily{gaps}{symbol=G}
+% \newconstantfamily{functionality}{symbol=f}
+% \newconstantfamily{requirement}{symbol=r}
+% \newconstantfamily{capability}{symbol=c}
+% \newconstantfamily{property}{symbol=p}
+% \newconstantfamily{property_category}{symbol={t}}
+
+% TABLES
+\usepackage{array}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}{>{\centering\arraybackslash}X} 
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X} 
+\newcolumntype{L}{>{\raggedright\arraybackslash}X} 
+\usepackage{tabularx,xltabular,makecell,adjustbox,booktabs,multirow}
+
+% FIGURES
+% \usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{subcaption}
+
+% Inline enumeration
+\usepackage[inline]{enumitem}
+\newlist{inlineenum}{enumerate*}{1}
+\setlist[inlineenum]{label=\roman*)} % chktex 9 chktex 10
+
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}[section]
+\newtheorem{exmp}{Example}[section]
+
+% \includeonly{sections/reference_architecture.tex}
+
+\begin{document}
+
+\subject{
+	\uppercase{\huge Università degli Studi di Milano} \\
+	\uppercase{\large Facoltà di scienze e tecnologie}
+	\vspace{1em}\\
+	\uppercase{\large Dipartimento di Informatica }\\
+	\uppercase{\large ``Giovanni Degli Antoni''}
+	\vspace{1em}\\
+	\includegraphics[width=7em]{images/unimi.pdf}
+	\vspace{1em}\\
+	\uppercase{\large Laurea Magistrale in} \\
+	\uppercase{\large Informatica} \\
+}
+\title{\LARGE\uppercase{Assurance-aware 5G Edge-Cloud Architectures for \\ Intensive data analytics}}
+\author{
+	\begin{tabular}{@{}r@{}rr@{}}
+		\hspace{10em} & Author: & <First Name> <Last Name>
+	\end{tabular}
+	\\\\\vspace{1em}
+	\begin{tabular}{@{}ll@{}r@{}}
+		Supervisor:   & Prof.~Marco Anisetti & \hspace{10em} \\
+		Cosupervisor: & Dr.~Filippo Berto    &               \\
+	\end{tabular}
+}
+% \publishers{Università degli Studi di Milano}
+% \uppertitleback{\vspace{3cm}I want to thank Scrooge MacDuck for his financial Support}
+\date{}
+
+\frontmatter
+\maketitle
+
+\include{sections/abstract.tex}
+
+\include{ack.tex}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\mainmatter{}
+\include{sections/introduction.tex}
+\include{sections/background.tex}
+\include{sections/methodology.tex}
+\include{sections/experiments.tex}
+\include{sections/discussion.tex}
+\include{sections/conclusions.tex}
+
+
+% \appendix
+% \include{sections/appendix.tex}
+
+\backmatter{}
+\printglossary[
+	type=acronym,
+	style=mcolindex,
+	nonumberlist
+]
+% \addcontentsline{toc}{chapter}{Acronyms}
+
+% BIBLIOGRAPHY
+\bibliographystyle{IEEEtran}
+\bibliography{biblio}
+
+\end{document} % chktex 17
