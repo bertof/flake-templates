@@ -7,7 +7,24 @@
 	pdfauthor={Filippo Berto, Claudio A. Ardagna, Marco Anisetti},
 	pdftitle={An Assurance specialized Network Function for the 5G Core Network}]{hyperref}
 
-\usepackage[acronym]{glossaries}
+% https://tex.stackexchange.com/a/145782/126890
+\usepackage{glossaries-extra}
+\setabbreviationstyle[acronym]{long-short} % use long short on first appearance
+\glssetcategoryattribute{acronym}{nohyperfirst}{true} % don't add link on first appearance
+% link to first appearance
+\renewcommand*{\glsdonohyperlink}[2]{%
+ {\glsxtrprotectlinks
+   \edef\fieldvalue{\glsxtrusefield{\glslabel}{hastarget}}%
+   \ifdefstring\fieldvalue{true}
+   {%
+     #2%
+   }%
+   {%
+     \gGlsXtrSetField{\glslabel}{hastarget}{true}\glsdohypertarget{#1}{#2}%
+   }%
+ }%
+}
+
 \input{glossary}
 
 \usepackage{tikz}
