@@ -1,6 +1,8 @@
 {
   description = "Paper flake";
 
+  nixConfig.extra-substituters = [ "http://nix-cache.cluster.sesar.int" ];
+
   inputs = {
     dotfiles.url = "gitlab:bertof/nix-dotfiles";
     nixpkgs.follows = "dotfiles/nixpkgs";
@@ -62,7 +64,7 @@
             -fix-accents \
             -fix-initials \
             -fix-names \
-            -output-file ''${1:-biblio.bib} <(cat ''${1:-biblio.bib}) 
+            -output-file ''${1:-biblio.bib} <(cat ''${1:-biblio.bib})
         '';
         bib-tidy = pkgs.writeShellScript "bib-tidy-default" ''
           ${pkgs.bibtex-tidy}/bin/bibtex-tidy \

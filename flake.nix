@@ -33,30 +33,12 @@
     flake = {
       templates = rec {
         default = basic;
-        paper = {
-          path = ./paper;
-          description = "Latex paper with pre-commit checks";
-        };
-        presentation = {
-          path = ./presentation;
-          description = "Latex presentation with pre-commit checks";
-        };
-        thesis = {
-          path = ./thesis;
-          description = "Latex thesis with pre-commit checks";
-        };
-        basic = {
-          path = ./basic;
-          description = "Basic flake environment with pre-commit checks";
-        };
-        python = {
-          path = ./python;
-          description = "Python with pre-commit checks";
-        };
-        rust = {
-          path = ./rust;
-          description = "Rust library with pre-commit checks";
-        };
+        paper = { path = ./paper; description = "Latex paper with pre-commit checks"; };
+        presentation = { path = ./presentation; description = "Latex presentation with pre-commit checks"; };
+        thesis = { path = ./thesis; description = "Latex thesis with pre-commit checks"; };
+        basic = { path = ./basic; description = "Basic flake environment with pre-commit checks"; };
+        python = { path = ./python; description = "Python with pre-commit checks"; };
+        rust = { path = ./rust; description = "Rust library with pre-commit checks"; };
         jupyenv = inputs.jupyenv.templates.default;
       };
     };

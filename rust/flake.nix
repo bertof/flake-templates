@@ -1,6 +1,8 @@
 {
   description = "A basic development flake for this Rust based project";
 
+  nixConfig.extra-substituters = [ "http://nix-cache.cluster.sesar.int" ];
+
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
     nixpkgs.url = "github:nixos/nixpkgs";

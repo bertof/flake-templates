@@ -1,5 +1,7 @@
 {
-  description = "A very basic flake";
+  description = "A basic Python flake";
+
+  nixConfig.extra-substituters = [ "http://nix-cache.cluster.sesar.int" ];
 
   inputs = {
     systems.url = "github:nix-systems/default";

@@ -1,8 +1,12 @@
 {
   description = "Presentation flake";
 
+  nixConfig.extra-substituters = [ "http://nix-cache.cluster.sesar.int" ];
+
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    dotfiles.url = "gitlab:bertof/nix-dotfiles";
+    nixpkgs.follows = "dotfiles/nixpkgs";
+    systems.url = "github:nix-systems/default";
     flake-utils.url = "github:numtide/flake-utils";
     pre-commit-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";
@@ -71,7 +75,7 @@
               -fix-accents \
               -fix-initials \
               -fix-names \
-              -output-file ''${1:-biblio.bib} <(cat ''${1:-biblio.bib}) 
+              -output-file ''${1:-biblio.bib} <(cat ''${1:-biblio.bib})
           '';
           bib-tidy = pkgs.writeShellScript "bib-tidy-default" ''
             ${pkgs.bibtex-tidy}/bin/bibtex-tidy \

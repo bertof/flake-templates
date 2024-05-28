@@ -1,9 +1,12 @@
 {
   description = "Minimal flake environment";
 
+  nixConfig.extra-substituters = [ "http://nix-cache.cluster.sesar.int" ];
+
   inputs = {
+    dotfiles.url = "gitlab:bertof/nix-dotfiles";
+    nixpkgs.follows = "dotfiles/nixpkgs";
     systems.url = "github:nix-systems/default";
-    nixpkgs.url = "github:nixos/nixpkgs";
     flake-parts.url = "github:hercules-ci/flake-parts";
     pre-commit-hooks-nix.url = "github:cachix/pre-commit-hooks.nix";
   };
