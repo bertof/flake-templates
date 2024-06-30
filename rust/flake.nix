@@ -1,18 +1,19 @@
 {
   description = "A basic development flake for this Rust based project";
 
-  nixConfig.extra-substituters = [ "http://nix-cache.cluster.sesar.int" ];
-
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
-    nixpkgs.url = "github:nixos/nixpkgs";
-    pre-commit-hooks-nix.url = "github:cachix/pre-commit-hooks.nix";
-    rust-overlay.url = "github:oxalica/rust-overlay";
     systems.url = "github:nix-systems/default";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+
+    pre-commit-hooks-nix.url = "github:cachix/pre-commit-hooks.nix";
+
+    naersk.url = "github:nix-community/naersk/master";
+    utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
-    systems = import inputs.systems;
+  outputs = inputs@{ flake-parts, systems, ... }: flake-parts.lib.mkFlake { inherit inputs; } {
+    systems = import systems;
     imports = [
       # To import a flake module
       # 1. Add foo to inputs
@@ -20,76 +21,79 @@
       # 3. Add here: foo.flakeModule
       inputs.pre-commit-hooks-nix.flakeModule
     ];
-    perSystem =
-      { config
-        # , self'
-        # , inputs'
-      , pkgs
-      , system
-      , lib
-      , ...
-      }:
-      let minBuildInputs = with pkgs; [ rustc stdenv.cc ]; in {
-        # Per-system attributes can be defined here. The self' and inputs'
-        # module parameters provide easy access to attributes of the same
-        # system.
+    perSystem = { config, self', pkgs, lib, ... }:
+      let
+        naersk-lib = pkgs.callPackage inputs.naersk { };
 
-        # This sets `pkgs` to a nixpkgs with allowUnfree option set.
-        _module.args.pkgs = import inputs.nixpkgs {
-          inherit system;
-          overlays = [
-            inputs.rust-overlay.overlays.default
-            (self: _super: {
-              rustc = self.rust-bin.stable.latest.default.override {
-                extensions = [ "rust-src" ];
-                targets = [ "x86_64-unknown-linux-gnu" "aarch64-unknown-linux-gnu" ];
-              };
-            })
-          ];
-          # config.allowUnfree = true;
-        };
+        buildInputs = [ pkgs.pkg-config pkgs.stdenv.cc pkgs.cargo pkgs.rustc ];
+        testInputs = buildInputs ++ [ pkgs.clippy pkgs.rustfmt ];
+      in
+      {
+        # # This sets `pkgs` to a nixpkgs with allowUnfree option set.
+        # _module.args.pkgs = import inputs.nixpkgs {
+        #   inherit system;
+        #   overlays = [ ];
+        #   # config.allowUnfree = true;
+        # };
 
-        packages = { inherit (pkgs) statix; };
+        packages = {
+          main-application = naersk-lib.buildPackage {
+            pname = "main-application";
+            src = ./.;
+            nativeBuildInputs = with pkgs; [ pkg-config ];
+          };
 
-        pre-commit = {
-          settings = {
-            hooks = {
-              deadnix.enable = true;
-              nixpkgs-fmt.enable = true;
-              statix.enable = true;
-
-              clippy.enable = true;
-              rustfmt.enable = true;
-              cargo-test = {
-                enable = true;
-                name = "cargo test";
-                description = "Test Rust code.";
-                entry =
-                  let
-                    s = pkgs.writeShellScript "cargo test" ''
-                      export PATH=${lib.makeBinPath minBuildInputs}
-                      cargo test'';
-                  in
-                  "${s}";
-                files = "\\.rs$";
-                pass_filenames = false;
-              };
-            };
-            tools = {
-              cargo = lib.mkForce pkgs.rustc;
-              clippy = lib.mkForce pkgs.rustc;
-              rustfmt = lib.mkForce pkgs.rustc;
+          main-application-docker-image = let p = self'.packages.main-application; in pkgs.dockerTools.buildImage {
+            name = "main-application";
+            tag = "latest";
+            created = "now";
+            config = {
+              Cmd = [ "${p}/bin/${p.pname}" ];
+              Env = [ "PATH=${lib.makeBinPath [p]}" ];
+              ExposedPorts = { "3000/tcp" = { }; };
             };
           };
         };
 
-        devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [ rustc ];
-          shellHook = ''
-            ${config.pre-commit.installationScript}
-          '';
+        pre-commit = {
+          inherit pkgs;
+          settings = {
+            hooks = {
+              deadnix = { enable = true; excludes = [ "Cargo.nix" ]; };
+              nixpkgs-fmt = { enable = true; excludes = [ "Cargo.nix" ]; };
+              # statix = { enable = true; excludes = [ "Cargo.nix" ]; };
+
+              clippy.enable = true;
+              rustfmt.enable = true;
+              cargo-check.enable = true;
+              cargo-test = {
+                enable = true;
+                name = "cargo test";
+                description = "Test Rust code.";
+                entry = toString (pkgs.writeShellScript "cargo-test-hook" ''
+                  export PATH=${lib.makeBinPath buildInputs}
+                  cargo test
+                '');
+                files = "\\.rs$";
+                pass_filenames = false;
+              };
+            };
+          };
         };
 
+        devShells = {
+          default = with pkgs; mkShell {
+            buildInputs = buildInputs ++ testInputs;
+            RUST_SRC_PATH = rustPlatform.rustLibSrc;
+            shellHook = ''
+              ${config.pre-commit.installationScript}
+            '';
+          };
+
+          tests = pkgs.mkShell { buildInputs = buildInputs ++ testInputs; };
+
+          podman = pkgs.mkShell { buildInputs = [ pkgs.podman ]; };
+        };
         formatter = pkgs.nixpkgs-fmt;
       };
     flake = {
@@ -98,4 +102,8 @@
       # those are more easily expressed in perSystem.
     };
   };
+
+
+
+
 }
