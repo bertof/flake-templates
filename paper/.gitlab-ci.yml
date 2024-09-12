@@ -1,15 +1,14 @@
-image: docker.io/nixpkgs/nix-flakes
+image: core.harbor.ricerca.sesar.di.unimi.it/docker/texlive/texlive
 
 stages:
   - build
 
-build:
+compile_main.pdf:
   stage: build
   script:
-    - nix build --print-build-logs
-    - cp -Lr result build_artifacts/
+    - latexmk -pdflua main.tex
   artifacts:
     paths:
-      - build_artifacts/
+      - main.pdf
     expire_in: 1 week
   interruptible: true
