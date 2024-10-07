@@ -2,9 +2,10 @@
   description = "A collection of project templates";
 
   inputs = {
+    dotfiles.url = "gitlab:bertof/nix-dotfiles";
+    nixpkgs.follows = "dotfiles/nixpkgs-u";
     flake-parts.url = "github:hercules-ci/flake-parts";
     jupyenv.url = "github:tweag/jupyenv";
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     pre-commit-hooks-nix.url = "github:cachix/pre-commit-hooks.nix";
     systems.url = "github:nix-systems/default";
   };
