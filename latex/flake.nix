@@ -34,7 +34,7 @@
           continuous_compile = pkgs.writeShellScript "continuous_compile" ''
             set -e
             PATH=$PATH:${pkgs.lib.makeBinPath [ texScheme ]}
-            latexmk -interaction=nonstopmode -pvc -synctex=1 ${latexmk_args} $@
+            latexmk -interaction=nonstopmode -pvc -synctex=1 ${latexmk_args} ''${@:-main}
           '';
           textidote = pkgs.writeShellScript "textidote-default" ''
             ${pkgs.jre}/bin/java -jar ${textidote_jar} --output html --firstlang en --check en ''${@:-main.tex} > textidote.html
