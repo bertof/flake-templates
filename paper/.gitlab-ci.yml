@@ -1,4 +1,4 @@
-image: core.harbor.ricerca.sesar.di.unimi.it/docker/texlive/texlive
+image: docker.io/texlive/texlive
 
 stages:
   - build
@@ -6,7 +6,7 @@ stages:
 compile_main.pdf:
   stage: build
   script:
-    - latexmk -pdflua main.tex
+    - latexmk -pdflua
   artifacts:
     paths:
       - main.pdf
