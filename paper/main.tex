@@ -14,9 +14,9 @@
 \glssetcategoryattribute{acronym}{nohyperfirst}{true} % don't add link on first appearance
 % link to first appearance
 \renewcommand*{\glsdonohyperlink}[2]{%
- {\glsxtrprotectlinks
+ {\glsxtrprotectlinks%
    \edef\fieldvalue{\glsxtrusefield{\glslabel}{hastarget}}%
-   \ifdefstring\fieldvalue{true}
+   \ifdefstring\fieldvalue{true}%
    {%
      #2%
    }%
