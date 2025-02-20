@@ -26,7 +26,8 @@
         naersk-lib = pkgs.callPackage inputs.naersk { };
 
         buildInputs = [ pkgs.pkg-config pkgs.stdenv.cc pkgs.cargo pkgs.rustc ];
-        testInputs = buildInputs ++ [ pkgs.clippy pkgs.rustfmt ];
+        testInputs = buildInputs ++ [ pkgs.clippy pkgs.rustfmt pkgs.cargo-hack ];
+        devInputs = [ pkgs.cargo-bump pkgs.cargo-semver-checks pkgs.lldb pkgs.rust-analyzer ];
       in
       {
         # # This sets `pkgs` to a nixpkgs with allowUnfree option set.
@@ -77,20 +78,39 @@
                 files = "\\.rs$";
                 pass_filenames = false;
               };
+              cargo-semver-checks = {
+                enable = true;
+                name = "cargo semver-checks";
+                description = "Test Rust semver info.";
+                entry = toString (pkgs.writeShellScript "cargo-semver-checks-hook" ''
+                  export PATH=${lib.makeBinPath (buildInputs ++ [pkgs.cargo-semver-checks])}
+                  cargo semver-checks --baseline-rev main
+                '');
+                files = "\\.(toml)$";
+                pass_filenames = false;
+              };
+
+              ci-lint = {
+                enable = true;
+                name = "ci lint";
+                entry = "${pkgs.glab}/bin/glab ci lint";
+                files = "\\.gitlab-ci.yml";
+                pass_filenames = false;
+              };
             };
           };
         };
 
         devShells = {
           default = with pkgs; mkShell {
-            buildInputs = buildInputs ++ testInputs;
+            buildInputs = buildInputs ++ testInputs ++ devInputs;
             RUST_SRC_PATH = rustPlatform.rustLibSrc;
             shellHook = ''
               ${config.pre-commit.installationScript}
             '';
           };
 
-          tests = pkgs.mkShell { buildInputs = buildInputs ++ testInputs; };
+          tests = pkgs.mkShell { buildInputs = testInputs; };
 
           podman = pkgs.mkShell { buildInputs = [ pkgs.podman ]; };
         };
@@ -102,8 +122,4 @@
       # those are more easily expressed in perSystem.
     };
   };
-
-
-
-
 }
