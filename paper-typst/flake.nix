@@ -25,7 +25,7 @@
           enable = true;
           name = "typstyle";
           entry = "${pkgs.typstyle}/bin/typstyle format-all";
-          files = "*.typ";
+          files = "\\.typ$";
           pass_filenames = false;
         };
       };
