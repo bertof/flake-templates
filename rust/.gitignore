@@ -2,6 +2,7 @@ result
 result-*
 .direnv/
 .pre-commit-config.yaml
+.env
 
 # Created by https://www.toptal.com/developers/gitignore/api/rust,git
 # Edit at https://www.toptal.com/developers/gitignore?templates=rust,git

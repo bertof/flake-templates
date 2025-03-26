@@ -1,13 +1,15 @@
-.worktrees/
+result
+result-*
 .direnv/
+.pre-commit-config.yaml
+.env
+
+*.bak*
+*.bib.*
 .cache/
 .pre-commit-config.yaml
-textidote.html
-result*
-
 main.pdf
-*.bib.*
-*.bak*
+textidote.html
 
 # Created by https://www.toptal.com/developers/gitignore/api/latex,git
 # Edit at https://www.toptal.com/developers/gitignore?templates=latex,git
