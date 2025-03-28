@@ -26,7 +26,12 @@
       , pkgs
         # , system
       , ...
-      }: {
+      }:
+      let
+        py = pkgs.python3;
+        pyPkgs = py.pkgs;
+      in
+      {
         # Per-system attributes can be defined here. The self' and inputs'
         # module parameters provide easy access to attributes of the same
         # system.
@@ -50,8 +55,10 @@
           name = "impurePythonEnv";
           venvDir = ".venv";
           buildInputs = [
-            pkgs.python3
-            pkgs.python3Packages.venvShellHook
+            py
+            pyPkgs.venvShellHook
+
+            pkgs.ruff
 
             # pkgs.python3Packages.ipython
             # (pkgs.python3Packages.matplotlib.override { enableTk = true; })
