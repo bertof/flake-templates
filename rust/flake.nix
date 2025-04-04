@@ -27,7 +27,7 @@
 
         buildInputs = [ pkgs.pkg-config pkgs.stdenv.cc pkgs.cargo pkgs.rustc ];
         testInputs = buildInputs ++ [ pkgs.clippy pkgs.rustfmt pkgs.cargo-hack ];
-        devInputs = [ pkgs.cargo-bump pkgs.cargo-semver-checks pkgs.lldb pkgs.rust-analyzer ];
+        devInputs = [ pkgs.cargo-bump pkgs.cargo-semver-checks pkgs.cargo-watch pkgs.lldb pkgs.rust-analyzer ];
       in
       {
         # # This sets `pkgs` to a nixpkgs with allowUnfree option set.
