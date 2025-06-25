@@ -2,17 +2,17 @@
   description = "A collection of project templates";
 
   inputs = {
-    dotfiles.url = "gitlab:bertof/nix-dotfiles";
-    nixpkgs.follows = "dotfiles/nixpkgs-u";
-    flake-parts.url = "github:hercules-ci/flake-parts";
-    jupyenv.url = "github:tweag/jupyenv";
-    pre-commit-hooks-nix.url = "github:cachix/pre-commit-hooks.nix";
     systems.url = "github:nix-systems/default";
+    dotfiles.url = "gitlab:bertof/nix-dotfiles";
+    nixpkgs.follows = "dotfiles/nixpkgs";
+    flake-parts.follows = "dotfiles/flake-parts";
+    git-hooks-nix.follows = "dotfiles/git-hooks-nix";
+    jupyenv.url = "github:tweag/jupyenv";
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
     systems = import inputs.systems;
-    imports = [ inputs.pre-commit-hooks-nix.flakeModule ];
+    imports = [ inputs.git-hooks-nix.flakeModule ];
     perSystem = { config, pkgs, ... }: {
       devShells.default = pkgs.mkShell {
         shellHook = ''
