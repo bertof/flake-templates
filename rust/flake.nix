@@ -2,11 +2,11 @@
   description = "A basic development flake for this Rust based project";
 
   inputs = {
-    flake-parts.url = "github:hercules-ci/flake-parts";
     systems.url = "github:nix-systems/default";
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-
-    pre-commit-hooks-nix.url = "github:cachix/pre-commit-hooks.nix";
+    dotfiles.url = "gitlab:bertof/nix-dotfiles";
+    nixpkgs.follows = "dotfiles/nixpkgs";
+    flake-parts.follows = "dotfiles/flake-parts";
+    git-hooks.follows = "dotfiles/git-hooks";
 
     naersk.url = "github:nix-community/naersk/master";
     utils.url = "github:numtide/flake-utils";
@@ -19,7 +19,7 @@
       # 1. Add foo to inputs
       # 2. Add foo as a parameter to the outputs function
       # 3. Add here: foo.flakeModule
-      inputs.pre-commit-hooks-nix.flakeModule
+      inputs.git-hooks.flakeModule
     ];
     perSystem = { config, self', pkgs, lib, ... }:
       let

@@ -3,9 +3,10 @@
 
   inputs = {
     systems.url = "github:nix-systems/default";
-    nixpkgs.url = "github:nixos/nixpkgs";
-    flake-parts.url = "github:hercules-ci/flake-parts";
-    pre-commit-hooks-nix.url = "github:cachix/pre-commit-hooks.nix";
+    dotfiles.url = "gitlab:bertof/nix-dotfiles";
+    nixpkgs.follows = "dotfiles/nixpkgs";
+    flake-parts.follows = "dotfiles/flake-parts";
+    git-hooks.follows = "dotfiles/git-hooks";
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
@@ -15,7 +16,7 @@
       # 1. Add foo to inputs
       # 2. Add foo as a parameter to the outputs function
       # 3. Add here: foo.flakeModule
-      inputs.pre-commit-hooks-nix.flakeModule
+      inputs.git-hooks.flakeModule
     ];
     perSystem =
       { config

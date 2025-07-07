@@ -6,13 +6,12 @@
     dotfiles.url = "gitlab:bertof/nix-dotfiles";
     nixpkgs.follows = "dotfiles/nixpkgs";
     flake-parts.follows = "dotfiles/flake-parts";
-    git-hooks-nix.follows = "dotfiles/git-hooks-nix";
-    jupyenv.url = "github:tweag/jupyenv";
+    git-hooks.follows = "dotfiles/git-hooks";
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
     systems = import inputs.systems;
-    imports = [ inputs.git-hooks-nix.flakeModule ];
+    imports = [ inputs.git-hooks.flakeModule ];
     perSystem = { config, pkgs, ... }: {
       devShells.default = pkgs.mkShell {
         shellHook = ''

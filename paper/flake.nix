@@ -6,13 +6,13 @@
     dotfiles.url = "gitlab:bertof/nix-dotfiles";
     nixpkgs.follows = "dotfiles/nixpkgs-u";
     flake-parts.follows = "dotfiles/flake-parts";
-    git-hooks-nix.follows = "dotfiles/git-hooks-nix";
+    git-hooks.follows = "dotfiles/git-hooks";
     gitignore.url = "github:hercules-ci/gitignore.nix";
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
     systems = import inputs.systems;
-    imports = [ inputs.git-hooks-nix.flakeModule ];
+    imports = [ inputs.git-hooks.flakeModule ];
     perSystem = { self', config, pkgs, lib, ... }:
       let
         latexmk_args = "-pdfxe";

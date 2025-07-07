@@ -6,12 +6,12 @@
     dotfiles.url = "gitlab:bertof/nix-dotfiles";
     nixpkgs.follows = "dotfiles/nixpkgs-u";
     flake-parts.follows = "dotfiles/flake-parts";
-    git-hooks-nix.follows = "dotfiles/git-hooks-nix";
+    git-hooks.follows = "dotfiles/git-hooks";
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
     systems = import inputs.systems;
-    imports = [ inputs.pre-commit-hooks-nix.flakeModule ];
+    imports = [ inputs.pre-commit-hooks.flakeModule ];
     perSystem = { config, pkgs, lib, ... }:
       let
         bib-tidy = pkgs.writeShellScript "bib-tidy-default" ''

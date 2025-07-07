@@ -4,17 +4,17 @@
   nixConfig.extra-substituters = [ "http://nix-cache.cluster.sesar.int" ];
 
   inputs = {
+    systems.url = "github:nix-systems/default";
     dotfiles.url = "gitlab:bertof/nix-dotfiles";
     nixpkgs.follows = "dotfiles/nixpkgs";
-    systems.url = "github:nix-systems/default";
-    flake-parts.url = "github:hercules-ci/flake-parts";
-    pre-commit-hooks-nix.url = "github:cachix/pre-commit-hooks.nix";
+    flake-parts.follows = "dotfiles/flake-parts";
+    git-hooks.follows = "dotfiles/git-hooks";
     gitignore.url = "github:hercules-ci/gitignore.nix";
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
     systems = import inputs.systems;
-    imports = [ inputs.pre-commit-hooks-nix.flakeModule ];
+    imports = [ inputs.git-hooks.flakeModule ];
     perSystem =
       { config
         # , self'

@@ -1,14 +1,12 @@
 {
   description = "Minimal flake environment";
 
-  nixConfig.extra-substituters = [ "http://nix-cache.cluster.sesar.int" ];
-
   inputs = {
     systems.url = "github:nix-systems/default";
     dotfiles.url = "gitlab:bertof/nix-dotfiles";
     nixpkgs.follows = "dotfiles/nixpkgs";
     flake-parts.follows = "dotfiles/flake-parts";
-    git-hooks-nix.follows = "dotfiles/git-hooks-nix";
+    git-hooks.follows = "dotfiles/git-hooks";
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
