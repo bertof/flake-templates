@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+stages:
+  - build
+  # - deploy
+
+build:typst:
+  image: nixpkgs/nix-flakes
+  stage: build
+  script:
+    - mkdir -p artifacts/
+    - nix run .#typst-compile filippo_berto.typ
+    - cp *.pdf artifacts/
+  artifacts:
+    paths:
+      - ./artifacts/
+    expire_in: 1 week
+  interruptible: true
+  rules:
+    - if: $CI_COMMIT_REF_PROTECTED
+
+# pages:
+#   stage: deploy
+#   image: busybox
+#   script:
+#     - mkdir -p public
+#     - ls public
+#     - cp -rv artifacts/* public/
+#   cache:
+#     paths:
+#       - public/
+#   artifacts:
+#     paths:
+#       - public
+#   environment:
+#     name: $CI_COMMIT_BRANCH
+#   only:
+#     - $CI_DEFAULT_BRANCH
