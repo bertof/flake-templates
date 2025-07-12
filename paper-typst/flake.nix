@@ -51,9 +51,9 @@
               typstyle = {
                 enable = true;
                 name = "typstyle";
-                entry = "${pkgs.typstyle}/bin/typstyle format-all";
+                entry = "${pkgs.typstyle}/bin/typstyle --check";
                 files = "\\.typ$";
-                pass_filenames = false;
+                pass_filenames = true;
               };
             };
           };
@@ -74,6 +74,7 @@
           packages = with pkgs; [ tinymist typst typstyle libertinus ];
           shellHook = ''
             ${config.pre-commit.installationScript}
+            unset SOURCE_DATE_EPOCH
           '';
         };
 
