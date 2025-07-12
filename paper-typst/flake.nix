@@ -11,7 +11,7 @@
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
     systems = import inputs.systems;
-    imports = [ inputs.pre-commit-hooks.flakeModule ];
+    imports = [ inputs.git-hooks.flakeModule ];
     perSystem = { config, pkgs, lib, ... }:
       let
         bib-tidy = pkgs.writeShellScript "bib-tidy-default" ''
