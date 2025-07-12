@@ -41,7 +41,6 @@
         basic = { path = ./basic; description = "Basic flake environment with pre-commit checks"; };
         python = { path = ./python; description = "Python with pre-commit checks"; };
         rust = { path = ./rust; description = "Rust library with pre-commit checks"; };
-        jupyenv = inputs.jupyenv.templates.default;
       };
     };
   };
