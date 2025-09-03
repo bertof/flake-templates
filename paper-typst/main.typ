@@ -1,6 +1,6 @@
 #import "@preview/charged-ieee:0.1.3": ieee
 #import "@preview/cetz:0.3.3": canvas, draw, tree
-#import "@preview/fletcher:0.5.5" as fletcher: diagram, node, edge
+#import "@preview/fletcher:0.5.5" as fletcher: diagram, edge, node
 
 #show: ieee.with(
   title: [Multi-layer Certification],
@@ -33,9 +33,11 @@
 According to Table~\ref{tbl:relatedwork}, we can first observe that \hl{TODO, vediamo quando completi}
 
 #figure(
-  diagram($
-    G edge(f, ->) edge("d", pi, ->>) & im(f) \
-    G slash ker(f) edge("dr", tilde(f), "hook-->")
-  $),
+  diagram(
+    $
+                    G edge(f, ->) edge("d", pi, ->>) & im(f) \
+      G slash ker(f) edge("dr", tilde(f), "hook-->")
+    $,
+  ),
   caption: [test fletcher],
 )
