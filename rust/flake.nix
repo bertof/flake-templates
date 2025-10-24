@@ -102,17 +102,27 @@
         };
 
         devShells = {
-          default = with pkgs; mkShell {
-            buildInputs = buildInputs ++ testInputs ++ devInputs;
-            RUST_SRC_PATH = rustPlatform.rustLibSrc;
-            shellHook = ''
-              ${config.pre-commit.installationScript}
-            '';
+          default = self'.devShells.dev;
+
+          base = pkgs.mkShell {
+            inputsFrom = [ config.pre-commit.devShell ];
+            packages = [ pkgs.pkg-config pkgs.stdenv.cc pkgs.cargo pkgs.rustc ];
+            RUST_SRC_PATH = pkgs.rustPlatform.rustLibSrc;
           };
 
-          tests = pkgs.mkShell { buildInputs = testInputs; };
+          dev = pkgs.mkShell {
+            packages = testInputs ++ devInputs;
+            inputsFrom = [ self'.devShells.base ];
+            RUST_SRC_PATH = pkgs.rustPlatform.rustLibSrc;
+          };
 
-          podman = pkgs.mkShell { buildInputs = [ pkgs.podman ]; };
+          tests = pkgs.mkShell {
+            packages = testInputs;
+            inputsFrom = [ self'.devShells.base ];
+            RUST_SRC_PATH = pkgs.rustPlatform.rustLibSrc;
+          };
+
+          podman = pkgs.mkShell { packages = [ pkgs.podman ]; };
         };
         formatter = pkgs.nixpkgs-fmt;
       };
