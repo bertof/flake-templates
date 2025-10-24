@@ -42,11 +42,7 @@
           statix.enable = true;
         };
 
-        devShells.default = pkgs.mkShell {
-          shellHook = ''
-            ${config.pre-commit.installationScript}
-          '';
-        };
+        default = config.pre-commit.devShell;
 
         formatter = pkgs.nixpkgs-fmt;
       };

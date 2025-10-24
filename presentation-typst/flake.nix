@@ -12,7 +12,7 @@
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
     systems = import inputs.systems;
     imports = [ inputs.git-hooks.flakeModule ];
-    perSystem = { config, pkgs, lib, self', ... }:
+    perSystem = { pkgs, lib, self', ... }:
       let
         bib-tidy = pkgs.writeShellScript "bib-tidy-default" ''
           ${pkgs.bibtex-tidy}/bin/bibtex-tidy \
@@ -48,13 +48,7 @@
                 pass_filenames = false;
               };
 
-              typstyle = {
-                enable = true;
-                name = "typstyle";
-                entry = "${pkgs.typstyle}/bin/typstyle --check";
-                files = "\\.typ$";
-                pass_filenames = true;
-              };
+              typstyle.enable = true;
             };
           };
         };
@@ -84,9 +78,10 @@
         };
 
         devShells.default = pkgs.mkShell {
-          packages = with pkgs; [ tinymist typst typstyle libertinus pympress ];
+          inputsFrom = [ self'.devShells.default ];
+          packages = with pkgs; [ tinymist typst typstyle libertinus ];
           shellHook = ''
-            ${config.pre-commit.installationScript}
+            unset SOURCE_DATE_EPOCH
           '';
         };
 
