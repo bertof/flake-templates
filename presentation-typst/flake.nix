@@ -12,7 +12,7 @@
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
     systems = import inputs.systems;
     imports = [ inputs.git-hooks.flakeModule ];
-    perSystem = { pkgs, lib, self', ... }:
+    perSystem = { pkgs, lib, config, self', ... }:
       let
         bib-tidy = pkgs.writeShellScript "bib-tidy-default" ''
           ${pkgs.bibtex-tidy}/bin/bibtex-tidy \
@@ -78,7 +78,7 @@
         };
 
         devShells.default = pkgs.mkShell {
-          inputsFrom = [ self'.devShells.default ];
+          inputsFrom = [ config.pre-commit.devShell ];
           packages = with pkgs; [ tinymist typst typstyle libertinus ];
           shellHook = ''
             unset SOURCE_DATE_EPOCH
