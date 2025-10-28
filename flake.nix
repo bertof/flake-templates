@@ -33,9 +33,9 @@
     flake = {
       templates = rec {
         default = basic;
-        paper = { path = ./paper; description = "Latex paper with pre-commit checks"; };
+        paper-latex = { path = ./paper-latex; description = "Latex paper with pre-commit checks"; };
         paper-typst = { path = ./paper-typst; description = "IEEE paper based on typst with pre-commit checks"; };
-        presentation = { path = ./presentation; description = "Latex presentation with pre-commit checks"; };
+        presentation-latex = { path = ./presentation-latex; description = "Latex presentation with pre-commit checks"; };
         presentation-typst = { path = ./presentation-typst; description = "Typst presentation with pre-commit checks"; };
         latex = { path = ./latex; description = "Latex with pre-commit checks"; };
         thesis = { path = ./thesis; description = "Latex thesis with pre-commit checks"; };
