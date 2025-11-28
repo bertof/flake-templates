@@ -13,11 +13,7 @@
     systems = import inputs.systems;
     imports = [ inputs.git-hooks.flakeModule ];
     perSystem = { config, pkgs, ... }: {
-      devShells.default = pkgs.mkShell {
-        shellHook = ''
-          ${config.pre-commit.installationScript}
-        '';
-      };
+      devShells.default = config.pre-commit.devShell;
       pre-commit = {
         inherit pkgs;
         settings = {

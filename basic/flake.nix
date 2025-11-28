@@ -16,7 +16,7 @@
       # 1. Add foo to inputs
       # 2. Add foo as a parameter to the outputs function
       # 3. Add here: foo.flakeModule
-      inputs.git-hooks-nix.flakeModule
+      inputs.git-hooks.flakeModule
     ];
     perSystem =
       { config

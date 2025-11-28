@@ -111,14 +111,14 @@
           };
 
           dev = pkgs.mkShell {
-            packages = testInputs ++ devInputs;
             inputsFrom = [ self'.devShells.base ];
+            packages = testInputs ++ devInputs;
             RUST_SRC_PATH = pkgs.rustPlatform.rustLibSrc;
           };
 
           tests = pkgs.mkShell {
-            packages = testInputs;
             inputsFrom = [ self'.devShells.base ];
+            packages = testInputs;
             RUST_SRC_PATH = pkgs.rustPlatform.rustLibSrc;
           };
 
