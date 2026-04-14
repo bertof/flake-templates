@@ -42,6 +42,7 @@
         paper-typst = { path = ./paper-typst; description = "IEEE paper based on typst with pre-commit checks"; };
         presentation-latex = { path = ./presentation-latex; description = "Latex presentation with pre-commit checks"; };
         presentation-typst = { path = ./presentation-typst; description = "Typst presentation with pre-commit checks"; };
+        presentation-typst-cern = { path = ./presentation-typst-cern; description = "Typst presentation with pre-commit checks with CERN's template"; };
         latex = { path = ./latex; description = "Latex with pre-commit checks"; };
         thesis = { path = ./thesis; description = "Latex thesis with pre-commit checks"; };
         basic = { path = ./basic; description = "Basic flake environment with pre-commit checks"; };
