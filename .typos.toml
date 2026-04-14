@@ -1,0 +1,9 @@
+[default.extend-words]
+modificato = "modificato"
+
+[files]
+extend-exclude = []
+
+[type.nix]
+extend-glob = ["*.nix"]
+

@@ -18,9 +18,18 @@
         inherit pkgs;
         settings = {
           hooks = {
+            # Nix
             deadnix.enable = true;
             nixpkgs-fmt.enable = true;
             statix.enable = true;
+            flake-checker.enable = true;
+
+            # Markdown
+            mdformat.enable = true;
+            markdownlint.enable = true;
+
+            # Typo
+            typos = { enable = true; stages = [ "pre-commit" "commit-msg" "pre-push" "manual" ]; };
           };
         };
       };
