@@ -18,7 +18,7 @@
       # 3. Add here: foo.flakeModule
       inputs.git-hooks.flakeModule
     ];
-    perSystem = { config, pkgs, ... }: {
+    perSystem = { self', config, pkgs, ... }: {
       # Per-system attributes can be defined here. The self' and inputs'
       # module parameters provide easy access to attributes of the same
       # system.
@@ -38,15 +38,38 @@
         black.enable = true;
       };
 
-      devShells.default = pkgs.mkShell {
-        name = "impurePythonEnv";
-        venvDir = ".venv";
-        inputsFrom = [ config.pre-commit.devShell ];
-        packages = with pkgs; [
-          (python3.withPackages (p: [ p.ipython ]))
-          ruff
-          uv
-        ];
+      devShells = {
+        default = self'.devShells.code;
+
+        code =
+          let uvPython = pkgs.python3;
+          in pkgs.mkShell {
+            inputsFrom = [ config.pre-commit.devShell ];
+            packages = with pkgs; [
+              ruff # Python LSP
+              uv # Python package manager
+            ];
+            env = {
+              UV_NO_SYNC = "1";
+              UV_PYTHON = "${uvPython.interpreter}";
+              UV_PYTHON_DOWNLOADS = "never";
+            };
+            shellHook = ''
+              unset SOURCE_DATE_EPOCH
+              export LD_LIBRARY_PATH="${pkgs.libgcc.lib}/lib:$LD_LIBRARY_PATH"
+              export REPO_ROOT=$(git rev-parse --show-toplevel)
+              unset PYTHONPATH
+
+              export VIRTUAL_ENV="$REPO_ROOT/.venv"
+              export PATH="$VIRTUAL_ENV/bin:$PATH"
+
+              if [ ! -d "$VIRTUAL_ENV" ]; then
+                uv venv --python ${uvPython.interpreter}
+              fi
+
+              uv sync --extra dev
+            '';
+          };
       };
 
       formatter = pkgs.nixpkgs-fmt;
