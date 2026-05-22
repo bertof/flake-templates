@@ -73,7 +73,7 @@
     config-common(datetime-format: datetime-format),
     config-page(header: header, footer: footer, margin: (
       top: 32pt,
-      bottom: 17pt,
+      bottom: 40pt,
       left: 27pt,
       right: 27pt,
     )),
@@ -315,8 +315,8 @@
   show: touying-slides.with(
     config-page(
       paper: "presentation-" + aspect-ratio,
-      margin: (top: 17pt, bottom: 17pt, left: 27pt, right: 27pt),
-      footer-descent: -1em,
+      margin: (top: 17pt, bottom: 34pt, left: 27pt, right: 27pt),
+      footer-descent: 0.25em,
     ),
     config-common(
       slide-fn: slide,
