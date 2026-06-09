@@ -2,7 +2,6 @@
 
 #set text(lang: "en")
 
-#show: setup.with(config-common: (handout: true))
+#show: setup.with(handout: true)
 
 #include "content.typ"
-

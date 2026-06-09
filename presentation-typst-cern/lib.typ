@@ -309,6 +309,7 @@
     )
     v(20pt)
   },
+  handout: false,
   ..args,
   body,
 ) = {
@@ -324,6 +325,7 @@
       subslide-preamble: subslide-preamble,
       zero-margin-header: false,
       zero-margin-footer: false,
+      handout: handout,
     ),
     config-methods(
       init: (self: none, body) => {
