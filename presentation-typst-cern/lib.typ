@@ -177,7 +177,7 @@
               ),
             )
           },
-          margin: (top: 17pt, bottom: 17pt, left: 27pt, right: 27pt),
+          margin: (top: 32pt, bottom: 40pt, left: 27pt, right: 27pt),
         ),
       ),
       ..args.named(),
@@ -310,6 +310,7 @@
     v(20pt)
   },
   handout: false,
+  show-notes-on-second-screen: none,
   ..args,
   body,
 ) = {
@@ -326,6 +327,7 @@
       zero-margin-header: false,
       zero-margin-footer: false,
       handout: handout,
+      show-notes-on-second-screen: show-notes-on-second-screen,
     ),
     config-methods(
       init: (self: none, body) => {
