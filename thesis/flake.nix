@@ -1,20 +1,22 @@
 {
   description = "Thesis flake";
 
-  nixConfig.extra-substituters = [ "http://nix-cache.cluster.sesar.int" ];
-
   inputs = {
     systems.url = "github:nix-systems/default";
     dotfiles.url = "gitlab:bertof/nix-dotfiles";
     nixpkgs.follows = "dotfiles/nixpkgs";
     flake-parts.follows = "dotfiles/flake-parts";
     git-hooks.follows = "dotfiles/git-hooks";
+    rbw-env = {
+      url = "github:bertof/rbw-env";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     gitignore.url = "github:hercules-ci/gitignore.nix";
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
     systems = import inputs.systems;
-    imports = [ inputs.git-hooks.flakeModule ];
+    imports = [ inputs.git-hooks.flakeModule inputs.rbw-env.flakeModule ];
     perSystem =
       { config
         # , self'
@@ -171,9 +173,7 @@
 
         devShells.default = pkgs.mkShell {
           packages = [ texScheme ];
-          shellHook = ''
-            ${config.pre-commit.installationScript}
-          '';
+          inputsFrom = [ config.pre-commit.devShell config.rbwEnv.devShell ];
         };
 
         formatter = pkgs.nixpkgs-fmt;

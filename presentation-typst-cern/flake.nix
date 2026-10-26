@@ -7,6 +7,10 @@
     nixpkgs.follows = "dotfiles/nixpkgs-u";
     flake-parts.follows = "dotfiles/flake-parts";
     git-hooks.follows = "dotfiles/git-hooks";
+    rbw-env = {
+      url = "github:bertof/rbw-env";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     press.url = "github:RossSmyth/press/a197eaa606fb53fc0977c954fa6bbf3b07ab8ed5";
   };
 
@@ -14,7 +18,7 @@
     inputs:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       systems = import inputs.systems;
-      imports = [ inputs.git-hooks.flakeModule ];
+      imports = [ inputs.git-hooks.flakeModule inputs.rbw-env.flakeModule ];
       perSystem =
         { pkgs
         , config
@@ -115,7 +119,7 @@
           };
 
           devShells.default = pkgs.mkShell {
-            inputsFrom = [ config.pre-commit.devShell ];
+            inputsFrom = [ config.pre-commit.devShell config.rbwEnv.devShell ];
             packages = with pkgs; [
               tinymist
               typst

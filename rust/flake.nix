@@ -7,6 +7,10 @@
     nixpkgs.follows = "dotfiles/nixpkgs";
     flake-parts.follows = "dotfiles/flake-parts";
     git-hooks.follows = "dotfiles/git-hooks";
+    rbw-env = {
+      url = "github:bertof/rbw-env";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     naersk.url = "github:nix-community/naersk/master";
     utils.url = "github:numtide/flake-utils";
@@ -20,6 +24,7 @@
       # 2. Add foo as a parameter to the outputs function
       # 3. Add here: foo.flakeModule
       inputs.git-hooks.flakeModule
+      inputs.rbw-env.flakeModule
     ];
     perSystem = { config, self', pkgs, lib, ... }:
       let
@@ -105,7 +110,7 @@
           default = self'.devShells.dev;
 
           base = pkgs.mkShell {
-            inputsFrom = [ config.pre-commit.devShell ];
+            inputsFrom = [ config.pre-commit.devShell config.rbwEnv.devShell ];
             packages = [ pkgs.pkg-config pkgs.stdenv.cc pkgs.cargo pkgs.rustc ];
             RUST_SRC_PATH = pkgs.rustPlatform.rustLibSrc;
           };

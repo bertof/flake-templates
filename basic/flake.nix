@@ -7,6 +7,10 @@
     nixpkgs.follows = "dotfiles/nixpkgs";
     flake-parts.follows = "dotfiles/flake-parts";
     git-hooks.follows = "dotfiles/git-hooks";
+    rbw-env = {
+      url = "github:bertof/rbw-env";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
@@ -17,6 +21,7 @@
       # 2. Add foo as a parameter to the outputs function
       # 3. Add here: foo.flakeModule
       inputs.git-hooks.flakeModule
+      inputs.rbw-env.flakeModule
     ];
     perSystem =
       { config
@@ -42,7 +47,12 @@
           statix.enable = true;
         };
 
-        default = config.pre-commit.devShell;
+        devShells.default = pkgs.mkShell {
+          inputsFrom = [
+            config.pre-commit.devShell
+            config.rbwEnv.devShell
+          ];
+        };
 
         formatter = pkgs.nixpkgs-fmt;
       };

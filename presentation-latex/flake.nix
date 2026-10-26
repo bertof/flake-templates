@@ -1,13 +1,12 @@
 {
   description = "Presentation flake";
 
-  nixConfig.extra-substituters = [ "http://nix-cache.cluster.sesar.int" ];
-
   inputs = {
     dotfiles.url = "gitlab:bertof/nix-dotfiles";
     nixpkgs.follows = "dotfiles/nixpkgs";
     systems.url = "github:nix-systems/default";
     flake-utils.url = "github:numtide/flake-utils";
+    flake-parts.follows = "dotfiles/flake-parts";
     pre-commit-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -15,6 +14,10 @@
     };
     gitignore = {
       url = "github:hercules-ci/gitignore.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    rbw-env = {
+      url = "github:bertof/rbw-env";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -25,14 +28,14 @@
     in
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       systems = import inputs.systems;
-      imports = [ inputs.pre-commit-hooks-nix.flakeModule ];
+      imports = [ inputs.pre-commit-hooks.flakeModule inputs.rbw-env.flakeModule ];
       perSystem =
         { config
           # , self'
           # , inputs'
         , pkgs
           # , system
-        , lib
+          # , lib
         , ...
         }:
         let
@@ -185,9 +188,7 @@
 
           devShells.default = pkgs.mkShell {
             packages = [ texScheme ];
-            shellHook = ''
-              ${config.pre-commit.installationScript}
-            '';
+            inputsFrom = [ config.pre-commit.devShell config.rbwEnv.devShell ];
           };
 
           formatter = pkgs.nixpkgs-fmt;

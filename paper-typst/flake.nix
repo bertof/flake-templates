@@ -7,12 +7,16 @@
     nixpkgs.follows = "dotfiles/nixpkgs-u";
     flake-parts.follows = "dotfiles/flake-parts";
     git-hooks.follows = "dotfiles/git-hooks";
+    rbw-env = {
+      url = "github:bertof/rbw-env";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
     systems = import inputs.systems;
-    imports = [ inputs.git-hooks.flakeModule ];
-    perSystem = { pkgs, lib, config, ... }:
+    imports = [ inputs.git-hooks.flakeModule inputs.rbw-env.flakeModule ];
+    perSystem = { pkgs, config, ... }:
       let
         bib-tidy = pkgs.writeShellScript "bib-tidy-default" ''
           ${pkgs.bibtex-tidy}/bin/bibtex-tidy \
@@ -65,7 +69,7 @@
         };
 
         devShells.default = pkgs.mkShell {
-          inputsFrom = [ config.pre-commit.devShell ];
+          inputsFrom = [ config.pre-commit.devShell config.rbwEnv.devShell ];
           packages = with pkgs; [ tinymist typst typstyle libertinus ];
           shellHook = ''
             unset SOURCE_DATE_EPOCH

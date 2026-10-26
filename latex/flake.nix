@@ -7,13 +7,17 @@
     nixpkgs.follows = "dotfiles/nixpkgs-u";
     flake-parts.follows = "dotfiles/flake-parts";
     git-hooks.follows = "dotfiles/git-hooks";
+    rbw-env = {
+      url = "github:bertof/rbw-env";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     gitignore.url = "github:hercules-ci/gitignore.nix";
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
     systems = import inputs.systems;
-    imports = [ inputs.git-hooks.flakeModule ];
-    perSystem = { self', config, pkgs, lib, ... }:
+    imports = [ inputs.git-hooks.flakeModule inputs.rbw-env.flakeModule ];
+    perSystem = { self', config, pkgs, ... }:
       let
         latexmk_args = "-pdfxe";
       in
@@ -121,9 +125,7 @@
 
         devShells.default = pkgs.mkShell {
           packages = [ self'.packages.texScheme pkgs.texlab ];
-          shellHook = ''
-            ${config.pre-commit.installationScript}
-          '';
+          inputsFrom = [ config.pre-commit.devShell config.rbwEnv.devShell ];
         };
 
         formatter = pkgs.nixpkgs-fmt;

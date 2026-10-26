@@ -7,6 +7,10 @@
     nixpkgs.follows = "dotfiles/nixpkgs";
     flake-parts.follows = "dotfiles/flake-parts";
     git-hooks.follows = "dotfiles/git-hooks";
+    rbw-env = {
+      url = "github:bertof/rbw-env";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
@@ -17,6 +21,7 @@
       # 2. Add foo as a parameter to the outputs function
       # 3. Add here: foo.flakeModule
       inputs.git-hooks.flakeModule
+      inputs.rbw-env.flakeModule
     ];
     perSystem = { self', config, pkgs, ... }: {
       # Per-system attributes can be defined here. The self' and inputs'
@@ -44,25 +49,41 @@
         code =
           let uvPython = pkgs.python3;
           in pkgs.mkShell {
-            inputsFrom = [ config.pre-commit.devShell ];
+            inputsFrom = [ config.pre-commit.devShell config.rbwEnv.devShell ];
             packages = with pkgs; [
               ruff # Python LSP
               uv # Python package manager
             ];
-            env = {
-              UV_NO_SYNC = "1";
-              UV_PYTHON = "${uvPython.interpreter}";
-              UV_PYTHON_DOWNLOADS = "never";
-            };
             shellHook = ''
-              unset SOURCE_DATE_EPOCH
-              export LD_LIBRARY_PATH="${pkgs.libgcc.lib}/lib:$LD_LIBRARY_PATH"
-              export REPO_ROOT=$(git rev-parse --show-toplevel)
-              unset PYTHONPATH
+              # Pin uv to the nix-provided interpreter and forbid it from
+              # downloading one of its own: the Python toolchain must come
+              # from nix alone, or the venv would not match the shell's
+              # shared libraries (LD_LIBRARY_PATH below).
+              export UV_PYTHON="${uvPython.interpreter}"
+              export UV_PYTHON_DOWNLOADS=never
+              # The hook syncs the venv once per shell entry; stop `uv run`
+              # from implicitly re-syncing (and possibly modifying the venv)
+              # on every invocation.
+              export UV_NO_SYNC=1
 
+              # stdenv pins SOURCE_DATE_EPOCH to 1970 in dev shells; unset it
+              # so tools that compare file timestamps behave on real time.
+              unset SOURCE_DATE_EPOCH
+              # Native wheels from PyPI expect libgcc in the default loader
+              # path: expose nix's runtime so their shared libraries resolve
+              # against the same toolchain as the interpreter.
+              export LD_LIBRARY_PATH="${pkgs.libgcc.lib}/lib:$LD_LIBRARY_PATH"
+              # Import resolution and the venv must be independent of the
+              # current directory: drop nix's PYTHONPATH pollution, anchor
+              # the venv in the project root and let tools (LSP, ruff) find
+              # it through VIRTUAL_ENV without activation.
+              unset PYTHONPATH
+              export REPO_ROOT="$(git rev-parse --show-toplevel)"
               export VIRTUAL_ENV="$REPO_ROOT/.venv"
               export PATH="$VIRTUAL_ENV/bin:$PATH"
 
+              # Create and sync the venv with the pinned interpreter and the
+              # dev extras on first entry.
               if [ ! -d "$VIRTUAL_ENV" ]; then
                 uv venv --python ${uvPython.interpreter}
               fi
