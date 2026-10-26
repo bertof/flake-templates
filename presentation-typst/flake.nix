@@ -39,6 +39,7 @@
         pre-commit = {
           inherit pkgs;
           settings = {
+            package = pkgs.prek;
             hooks = {
               deadnix.enable = true;
               nixpkgs-fmt.enable = true;

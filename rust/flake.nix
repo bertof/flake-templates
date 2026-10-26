@@ -64,6 +64,7 @@
         pre-commit = {
           inherit pkgs;
           settings = {
+            package = pkgs.prek;
             hooks = {
               deadnix = { enable = true; excludes = [ "Cargo.nix" ]; };
               nixpkgs-fmt = { enable = true; excludes = [ "Cargo.nix" ]; };

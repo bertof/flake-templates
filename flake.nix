@@ -17,6 +17,7 @@
       pre-commit = {
         inherit pkgs;
         settings = {
+          package = pkgs.prek;
           hooks = {
             # Nix
             deadnix.enable = true;

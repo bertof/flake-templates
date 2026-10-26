@@ -41,10 +41,16 @@
         #   config.allowUnfree = true;
         # };
 
-        pre-commit.settings.hooks = {
-          deadnix.enable = true;
-          nixpkgs-fmt.enable = true;
-          statix.enable = true;
+        pre-commit = {
+          inherit pkgs;
+          settings = {
+            package = pkgs.prek;
+            hooks = {
+              deadnix.enable = true;
+              nixpkgs-fmt.enable = true;
+              statix.enable = true;
+            };
+          };
         };
 
         devShells.default = pkgs.mkShell {
