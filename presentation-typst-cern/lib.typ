@@ -1,6 +1,8 @@
 #import "@preview/touying:0.6.1": *
 #import themes.simple: *
 
+#import "@preview/fletcher:0.5.8"
+
 #let cern_colors = (
   blue: color.rgb("0033a0"),
   dark: color.rgb("2f2f2f"),
@@ -10,6 +12,22 @@
   purple: color.rgb("6e2466"),
   dark_blue: color.rgb("1c446a"),
 )
+
+// CERN-themed fletcher diagram, as in the report.
+#let edge = fletcher.edge
+#let node = fletcher.node
+#let diagram = fletcher.diagram.with(
+  edge-corner-radius: 10pt,
+  edge-stroke: 1.2pt + cern_colors.blue,
+  label-sep: 1em,
+  label-size: 12pt,
+  node-corner-radius: 10pt,
+  node-fill: cern_colors.blue.lighten(85%),
+  node-inset: 10pt,
+  node-stroke: 1pt + cern_colors.blue,
+  spacing: 2em,
+)
+
 #let datetime-format = "[month repr:long] [day] [year]"
 
 #let cern_logo = image.with("figures/LogoOutline-Blue.svg", alt: "CERN logo")
@@ -22,6 +40,188 @@
     size: 8.5pt,
     fill: cern_colors.blue,
     it,
+  ),
+)
+
+// ---------------------------------------------------------------------------
+// Reusable slide components
+// ---------------------------------------------------------------------------
+
+/// Status card for an item in an overview.
+///
+/// Example: `#status-card("mcp-ctrl", [CTRL/#box[CTRL++]], "IN PRODUCTION")[ ... ]`
+///
+/// - title (content): The card title.
+/// - subtitle (content): The subtitle shown under the title.
+/// - status (content): The badge text.
+/// - active (bool): Whether the item is active. Selects the blue palette when true and the gray palette when false.
+/// - height (length): Fixed card height. Defaults to `190pt`.
+/// - status-fill (color, auto): Badge background. Defaults to the palette accent.
+/// - fill (color, auto): Card background. Defaults to the palette tint.
+/// - stroke (stroke, auto): Card border. Defaults to the palette accent.
+/// - body (content): The card's bullet list or description.
+#let status-card(
+  title,
+  subtitle,
+  status,
+  active: true,
+  height: 190pt,
+  status-fill: auto,
+  fill: auto,
+  stroke: auto,
+  body,
+) = {
+  let accent = if active { cern_colors.blue } else {
+    cern_colors.gray.darken(35%)
+  }
+  let card-fill = if fill == auto {
+    if active { cern_colors.blue.lighten(95%) } else {
+      cern_colors.gray.lighten(75%)
+    }
+  } else {
+    fill
+  }
+  let card-stroke = if stroke == auto {
+    let color = if active { cern_colors.blue.lighten(45%) } else {
+      cern_colors.gray.darken(15%)
+    }
+    1pt + color
+  } else {
+    stroke
+  }
+  let badge-fill = if status-fill == auto { accent } else { status-fill }
+  block(
+    width: 100%,
+    height: height,
+    radius: 8pt,
+    inset: 13pt,
+    fill: card-fill,
+    stroke: card-stroke,
+    [
+      #grid(
+        columns: (1fr, auto),
+        align: (left + horizon, right + horizon),
+        text(20pt, weight: "bold", fill: cern_colors.blue)[#title],
+        box(
+          fill: badge-fill,
+          radius: 10pt,
+          inset: (x: 8pt, y: 3pt),
+          text(9pt, fill: white, weight: "bold")[#status],
+        ),
+      )
+      #text(13pt, fill: cern_colors.dark)[#subtitle]
+      #v(0.7em)
+      #set text(size: 13.5pt)
+      #set list(spacing: 0.5em)
+      #body
+    ],
+  )
+}
+
+/// Card for a single headline metric.
+///
+/// Example: `#metric-card([30], [models])`
+///
+/// - value (content): The headline figure.
+/// - label (content): The description shown under the figure.
+/// - value-size (length): Font size of the figure. Defaults to `26pt`.
+/// - height (length): Fixed card height. Defaults to `94pt`.
+#let metric-card(
+  value,
+  label,
+  value-size: 26pt,
+  height: 94pt,
+) = block(
+  width: 100%,
+  height: height,
+  radius: 8pt,
+  inset: 10pt,
+  fill: cern_colors.blue.lighten(96%),
+  stroke: 1pt + cern_colors.blue.lighten(55%),
+  align(center + horizon, [
+    #text(value-size, weight: "bold", fill: cern_colors.blue)[#value] \
+    #text(12pt, fill: cern_colors.dark)[#label]
+  ]),
+)
+
+/// Card for a highlighted item, such as a lesson or a pipeline job.
+///
+/// Example: `#info-card("Reliable by construction", kicker: "CONTROL")[ ... ]`
+///
+/// - title (content): The headline of the item.
+/// - kicker (content): Optional small label shown above the title.
+/// - height (length): Fixed card height. Defaults to `220pt`.
+/// - accent (color): Accent colour. Defaults to the CERN blue.
+/// - body (content): Supporting text or bullet list.
+#let info-card(
+  title,
+  kicker: none,
+  height: 220pt,
+  accent: cern_colors.blue,
+  body,
+) = block(
+  width: 100%,
+  height: height,
+  radius: 8pt,
+  inset: 13pt,
+  fill: accent.lighten(96%),
+  stroke: 1pt + accent.lighten(55%),
+  [
+    #if kicker != none {
+      text(9pt, weight: "bold", fill: accent)[#kicker]
+      linebreak()
+    }
+    #text(17pt, weight: "bold", fill: accent)[#title]
+    #v(0.5em)
+    #set text(size: 14pt)
+    #set list(spacing: 0.6em)
+    #body
+  ],
+)
+
+/// Numbered item for a list or closing slide.
+///
+/// Example: `#numbered-item("01", "Grounded in our knowledge")[ ... ]`
+///
+/// - number (content): The item number.
+/// - title (content): The item headline.
+/// - body (content): The supporting sentence.
+/// - accent (color): Accent colour. Defaults to the CERN blue.
+#let numbered-item(
+  number,
+  title,
+  body,
+  accent: cern_colors.blue,
+) = grid(
+  columns: (auto, 1fr),
+  column-gutter: 0.7em,
+  text(26pt, weight: "bold", fill: accent)[#number],
+  {
+    text(17pt, weight: "bold", fill: accent)[#title]
+    v(0.25em)
+    set text(13.5pt, fill: cern_colors.dark)
+    body
+  },
+)
+
+/// Highlighted note band for the bottom of a slide.
+///
+/// Example: `#note-band([Next])[ ... ]`
+///
+/// - title (content): Short label shown in bold on the left.
+/// - body (content): The note text.
+/// - accent (color): Accent colour. Defaults to the CERN blue.
+#let note-band(title, body, accent: cern_colors.blue) = block(
+  width: 100%,
+  fill: accent.lighten(94%),
+  stroke: (left: 3pt + accent),
+  radius: 4pt,
+  inset: (x: 12pt, y: 8pt),
+  grid(
+    columns: (auto, 1fr),
+    column-gutter: 12pt,
+    align: horizon,
+    text(14pt, weight: "bold", fill: accent)[#title], text(14pt)[#body],
   ),
 )
 
