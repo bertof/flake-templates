@@ -92,6 +92,31 @@
   )
 }
 
+/// Simple rounded panel with a full border and a light background.
+///
+/// Example: `#panel[Content]`
+#let panel(
+  body,
+  accent: cern_colors.blue,
+  fill: auto,
+  stroke: auto,
+  radius: 8pt,
+  inset: 13pt,
+) = {
+  let panel-fill = if fill == auto { accent.lighten(96%) } else { fill }
+  let panel-stroke = if stroke == auto { 1pt + accent.lighten(55%) } else {
+    stroke
+  }
+  block(
+    width: 100%,
+    fill: panel-fill,
+    stroke: panel-stroke,
+    radius: radius,
+    inset: inset,
+    body,
+  )
+}
+
 /// Numbered item for a list or closing slide.
 ///
 /// Example: `#numbered-item("01")[*Grounded in our knowledge* ... ]`
