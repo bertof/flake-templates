@@ -60,101 +60,46 @@
   fill: fill,
   radius: 10pt,
   inset: (x: 8pt, y: 3pt),
-  text(9pt, fill: text-fill, weight: "bold")[#label],
+  text(9pt, fill: text-fill, weight: "bold")[
+    #show link: set text(fill: text-fill)
+    #label
+  ],
 )
 
-/// Status card for an item in an overview.
+/// Outer box with a fill and a stroke.
 ///
-/// Example: `#status-card("mcp-ctrl", subtitle: [CTRL/CTRL++], status: [IN PRODUCTION])[ ... ]`
-///
-/// - title (content): The card title.
-/// - subtitle (content, none): Optional subtitle shown under the title.
-/// - status (content, none): Optional badge text.
-/// - active (bool): Whether the item is active. Selects the blue palette when true and the gray palette when false.
-/// - height (length, auto): Card height. Defaults to `auto`.
-/// - status-fill (color, auto): Badge background. Defaults to the palette accent.
-/// - fill (color, auto): Card background. Defaults to the palette tint.
-/// - stroke (stroke, auto): Card border. Defaults to the palette accent.
-/// - body (content): The card's bullet list or description.
-#let status-card(
-  title,
-  subtitle: none,
-  status: none,
-  active: true,
-  height: auto,
-  status-fill: auto,
-  fill: auto,
-  stroke: auto,
+/// Example: `#box-card[Content]`
+#let box-card(
   body,
-) = {
-  let accent = if active { cern_colors.blue } else {
-    cern_colors.gray.darken(35%)
-  }
-  let card-fill = if fill == auto {
-    if active { cern_colors.blue.lighten(95%) } else {
-      cern_colors.gray.lighten(75%)
-    }
-  } else {
-    fill
-  }
-  let card-stroke = if stroke == auto {
-    let color = if active { cern_colors.blue.lighten(45%) } else {
-      cern_colors.gray.darken(15%)
-    }
-    1pt + color
-  } else {
-    stroke
-  }
-  let badge-fill = if status-fill == auto { accent } else { status-fill }
-  block(
-    width: 100%,
-    height: height,
-    radius: 8pt,
-    inset: 13pt,
-    fill: card-fill,
-    stroke: card-stroke,
-    [
-      #grid(
-        columns: (1fr, auto),
-        align: (left + horizon, right + horizon),
-        text(20pt, weight: "bold", fill: cern_colors.blue)[#title],
-        if status != none { badge(status, fill: badge-fill) },
-      )
-      #if subtitle != none {
-        text(13pt, fill: cern_colors.dark)[#subtitle]
-      }
-      #v(0.7em)
-      #set text(size: 13.5pt)
-      #set list(spacing: 0.5em)
-      #body
-    ],
-  )
-}
+  fill: cern_colors.blue.lighten(95%),
+  stroke: (left: 3pt + cern_colors.blue),
+  radius: 4pt,
+  inset: (x: 12pt, y: 8pt),
+) = block(
+  width: 100%,
+  fill: fill,
+  stroke: stroke,
+  radius: radius,
+  inset: inset,
+  body,
+)
 
 /// Side panel for a short note or explanation.
 ///
 /// Example: `#side-panel([Possible])[The tool understood the module.]`
-#let side-panel(title, body, accent: cern_colors.blue) = block(
-  width: 100%,
-  fill: accent.lighten(95%),
-  stroke: (left: 3pt + accent),
-  radius: 4pt,
-  inset: (x: 12pt, y: 8pt),
+#let side-panel(title, body, accent: cern_colors.blue) = box-card(
   [
     #text(weight: "bold", fill: accent)[#title]
 
     #body
   ],
+  fill: accent.lighten(95%),
+  stroke: (left: 3pt + accent),
 )
 
 /// Numbered item for a list or closing slide.
 ///
 /// Example: `#numbered-item("01", "Grounded in our knowledge")[ ... ]`
-///
-/// - number (content): The item number.
-/// - title (content): The item headline.
-/// - body (content): The supporting sentence.
-/// - accent (color): Accent colour. Defaults to the CERN blue.
 #let numbered-item(
   number,
   title,
@@ -175,22 +120,15 @@
 /// Highlighted note band for the bottom of a slide.
 ///
 /// Example: `#note-band([Next])[ ... ]`
-///
-/// - title (content): Short label shown in bold on the left.
-/// - body (content): The note text.
-/// - accent (color): Accent colour. Defaults to the CERN blue.
-#let note-band(title, body, accent: cern_colors.blue) = block(
-  width: 100%,
-  fill: accent.lighten(94%),
-  stroke: (left: 3pt + accent),
-  radius: 4pt,
-  inset: (x: 12pt, y: 8pt),
+#let note-band(title, body, accent: cern_colors.blue) = box-card(
   grid(
     columns: (auto, 1fr),
     column-gutter: 12pt,
-    align: horizon,
+    align: left + horizon,
     text(14pt, weight: "bold", fill: accent)[#title], text(14pt)[#body],
   ),
+  fill: accent.lighten(94%),
+  stroke: (left: 3pt + accent),
 )
 
 /// Default slide function for the presentation.
