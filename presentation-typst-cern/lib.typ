@@ -53,25 +53,35 @@
 // Reusable slide components
 // ---------------------------------------------------------------------------
 
+/// Small badge for a status or category.
+///
+/// Example: `#badge("IN PRODUCTION")`
+#let badge(label, fill: cern_colors.blue, text-fill: white) = box(
+  fill: fill,
+  radius: 10pt,
+  inset: (x: 8pt, y: 3pt),
+  text(9pt, fill: text-fill, weight: "bold")[#label],
+)
+
 /// Status card for an item in an overview.
 ///
-/// Example: `#status-card("mcp-ctrl", [CTRL/#box[CTRL++]], "IN PRODUCTION")[ ... ]`
+/// Example: `#status-card("mcp-ctrl", subtitle: [CTRL/CTRL++], status: [IN PRODUCTION])[ ... ]`
 ///
 /// - title (content): The card title.
-/// - subtitle (content): The subtitle shown under the title.
-/// - status (content): The badge text.
+/// - subtitle (content, none): Optional subtitle shown under the title.
+/// - status (content, none): Optional badge text.
 /// - active (bool): Whether the item is active. Selects the blue palette when true and the gray palette when false.
-/// - height (length): Fixed card height. Defaults to `190pt`.
+/// - height (length, auto): Card height. Defaults to `auto`.
 /// - status-fill (color, auto): Badge background. Defaults to the palette accent.
 /// - fill (color, auto): Card background. Defaults to the palette tint.
 /// - stroke (stroke, auto): Card border. Defaults to the palette accent.
 /// - body (content): The card's bullet list or description.
 #let status-card(
   title,
-  subtitle,
-  status,
+  subtitle: none,
+  status: none,
   active: true,
-  height: 190pt,
+  height: auto,
   status-fill: auto,
   fill: auto,
   stroke: auto,
@@ -108,14 +118,11 @@
         columns: (1fr, auto),
         align: (left + horizon, right + horizon),
         text(20pt, weight: "bold", fill: cern_colors.blue)[#title],
-        box(
-          fill: badge-fill,
-          radius: 10pt,
-          inset: (x: 8pt, y: 3pt),
-          text(9pt, fill: white, weight: "bold")[#status],
-        ),
+        if status != none { badge(status, fill: badge-fill) },
       )
-      #text(13pt, fill: cern_colors.dark)[#subtitle]
+      #if subtitle != none {
+        text(13pt, fill: cern_colors.dark)[#subtitle]
+      }
       #v(0.7em)
       #set text(size: 13.5pt)
       #set list(spacing: 0.5em)
@@ -124,63 +131,18 @@
   )
 }
 
-/// Card for a single headline metric.
+/// Side panel for a short note or explanation.
 ///
-/// Example: `#metric-card([30], [models])`
-///
-/// - value (content): The headline figure.
-/// - label (content): The description shown under the figure.
-/// - value-size (length): Font size of the figure. Defaults to `26pt`.
-/// - height (length): Fixed card height. Defaults to `94pt`.
-#let metric-card(
-  value,
-  label,
-  value-size: 26pt,
-  height: 94pt,
-) = block(
+/// Example: `#side-panel([Possible])[The tool understood the module.]`
+#let side-panel(title, body, accent: cern_colors.blue) = block(
   width: 100%,
-  height: height,
-  radius: 8pt,
-  inset: 10pt,
-  fill: cern_colors.blue.lighten(96%),
-  stroke: 1pt + cern_colors.blue.lighten(55%),
-  align(center + horizon, [
-    #text(value-size, weight: "bold", fill: cern_colors.blue)[#value] \
-    #text(12pt, fill: cern_colors.dark)[#label]
-  ]),
-)
-
-/// Card for a highlighted item, such as a lesson or a pipeline job.
-///
-/// Example: `#info-card("Reliable by construction", kicker: "CONTROL")[ ... ]`
-///
-/// - title (content): The headline of the item.
-/// - kicker (content): Optional small label shown above the title.
-/// - height (length): Fixed card height. Defaults to `220pt`.
-/// - accent (color): Accent colour. Defaults to the CERN blue.
-/// - body (content): Supporting text or bullet list.
-#let info-card(
-  title,
-  kicker: none,
-  height: 220pt,
-  accent: cern_colors.blue,
-  body,
-) = block(
-  width: 100%,
-  height: height,
-  radius: 8pt,
-  inset: 13pt,
-  fill: accent.lighten(96%),
-  stroke: 1pt + accent.lighten(55%),
+  fill: accent.lighten(95%),
+  stroke: (left: 3pt + accent),
+  radius: 4pt,
+  inset: (x: 12pt, y: 8pt),
   [
-    #if kicker != none {
-      text(9pt, weight: "bold", fill: accent)[#kicker]
-      linebreak()
-    }
-    #text(17pt, weight: "bold", fill: accent)[#title]
-    #v(0.5em)
-    #set text(size: 14pt)
-    #set list(spacing: 0.6em)
+    #text(weight: "bold", fill: accent)[#title]
+
     #body
   ],
 )
