@@ -71,30 +71,37 @@
 /// Example: `#box-card[Content]`
 #let box-card(
   body,
-  fill: cern_colors.blue.lighten(95%),
-  stroke: (left: 3pt + cern_colors.blue),
+  accent: cern_colors.blue,
+  fill: auto,
+  stroke: auto,
   radius: 4pt,
   inset: (x: 12pt, y: 8pt),
-) = block(
-  width: 100%,
-  fill: fill,
-  stroke: stroke,
-  radius: radius,
-  inset: inset,
-  body,
-)
+) = {
+  let card-fill = if fill == auto { accent.lighten(95%) } else { fill }
+  let card-stroke = if stroke == auto { (left: 3pt + accent) } else { stroke }
+  block(
+    width: 100%,
+    fill: card-fill,
+    stroke: card-stroke,
+    radius: radius,
+    inset: inset,
+    [
+      #show strong: set text(fill: accent)
+      #body
+    ],
+  )
+}
 
 /// Side panel for a short note or explanation.
 ///
 /// Example: `#side-panel([Possible])[The tool understood the module.]`
 #let side-panel(title, body, accent: cern_colors.blue) = box-card(
   [
-    #text(weight: "bold", fill: accent)[#title]
+    #strong(title)
 
     #body
   ],
-  fill: accent.lighten(95%),
-  stroke: (left: 3pt + accent),
+  accent: accent,
 )
 
 /// Numbered item for a list or closing slide.
@@ -105,17 +112,20 @@
   title,
   body,
   accent: cern_colors.blue,
-) = grid(
-  columns: (auto, 1fr),
-  column-gutter: 0.7em,
-  text(26pt, weight: "bold", fill: accent)[#number],
-  {
-    text(17pt, weight: "bold", fill: accent)[#title]
-    v(0.25em)
-    set text(13.5pt, fill: cern_colors.dark)
-    body
-  },
-)
+) = {
+  show strong: set text(fill: accent)
+  grid(
+    columns: (auto, 1fr),
+    column-gutter: 0.7em,
+    text(26pt, weight: "bold", fill: accent)[#number],
+    {
+      strong(text(17pt)[#title])
+      v(0.25em)
+      set text(13.5pt, fill: cern_colors.dark)
+      body
+    },
+  )
+}
 
 /// Highlighted note band for the bottom of a slide.
 ///
@@ -125,10 +135,10 @@
     columns: (auto, 1fr),
     column-gutter: 12pt,
     align: left + horizon,
-    text(14pt, weight: "bold", fill: accent)[#title], text(14pt)[#body],
+    strong(title), text(14pt)[#body],
   ),
+  accent: accent,
   fill: accent.lighten(94%),
-  stroke: (left: 3pt + accent),
 )
 
 /// Default slide function for the presentation.
