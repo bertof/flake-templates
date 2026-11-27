@@ -21,6 +21,12 @@
   edge-stroke: 1.2pt + cern_colors.blue,
   label-sep: 1em,
   label-size: 12pt,
+  label-wrapper: edge => box(
+    align(center)[#edge.label],
+    inset: .2em,
+    radius: .2em,
+    fill: edge.label-fill,
+  ),
   node-corner-radius: 10pt,
   node-fill: cern_colors.blue.lighten(85%),
   node-inset: 10pt,
