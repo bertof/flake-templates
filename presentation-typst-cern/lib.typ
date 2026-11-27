@@ -66,6 +66,37 @@
   ],
 )
 
+/// Content wrapper that colours bold text with the accent.
+#let accent-content(body, accent: cern_colors.blue) = {
+  show strong: it => text(fill: accent, weight: "bold", it.body)
+  body
+}
+
+/// Simple rounded panel with a full border and a light background.
+///
+/// Example: `#card[Content]`
+#let card(
+  body,
+  accent: cern_colors.blue,
+  fill: auto,
+  stroke: auto,
+  radius: 8pt,
+  inset: 13pt,
+) = {
+  let panel-fill = if fill == auto { accent.lighten(96%) } else { fill }
+  let panel-stroke = if stroke == auto { 1pt + accent.lighten(55%) } else {
+    stroke
+  }
+  block(
+    width: 100%,
+    fill: panel-fill,
+    stroke: panel-stroke,
+    radius: radius,
+    inset: inset,
+    accent-content(body, accent: accent),
+  )
+}
+
 /// Outer box with a fill and a stroke.
 ///
 /// Example: `#side-card[Content]`
@@ -85,37 +116,10 @@
     stroke: card-stroke,
     radius: radius,
     inset: inset,
-    [
-      #show strong: it => text(fill: accent, weight: "bold", it.body)
-      #body
-    ],
+    accent-content(body, accent: accent),
   )
 }
 
-/// Simple rounded panel with a full border and a light background.
-///
-/// Example: `#panel[Content]`
-#let panel(
-  body,
-  accent: cern_colors.blue,
-  fill: auto,
-  stroke: auto,
-  radius: 8pt,
-  inset: 13pt,
-) = {
-  let panel-fill = if fill == auto { accent.lighten(96%) } else { fill }
-  let panel-stroke = if stroke == auto { 1pt + accent.lighten(55%) } else {
-    stroke
-  }
-  block(
-    width: 100%,
-    fill: panel-fill,
-    stroke: panel-stroke,
-    radius: radius,
-    inset: inset,
-    body,
-  )
-}
 
 /// Numbered item for a list or closing slide.
 ///
@@ -124,18 +128,15 @@
   number,
   body,
   accent: cern_colors.blue,
-) = {
-  show strong: it => text(fill: accent, weight: "bold", it.body)
-  grid(
-    columns: (auto, 1fr),
-    column-gutter: 0.7em,
-    text(26pt, weight: "bold", fill: accent)[#number],
-    {
-      set text(13.5pt, fill: cern_colors.dark)
-      body
-    },
-  )
-}
+) = grid(
+  columns: (auto, 1fr),
+  column-gutter: 0.7em,
+  text(26pt, weight: "bold", fill: accent)[#number],
+  {
+    set text(13.5pt, fill: cern_colors.dark)
+    accent-content(body, accent: accent)
+  },
+)
 
 /// Highlighted note band for the bottom of a slide.
 ///
