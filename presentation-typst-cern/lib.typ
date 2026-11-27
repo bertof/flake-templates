@@ -68,8 +68,8 @@
 
 /// Outer box with a fill and a stroke.
 ///
-/// Example: `#box-card[Content]`
-#let box-card(
+/// Example: `#side-card[Content]`
+#let side-card(
   body,
   accent: cern_colors.blue,
   fill: auto,
@@ -92,35 +92,20 @@
   )
 }
 
-/// Side panel for a short note or explanation.
-///
-/// Example: `#side-panel([Possible])[The tool understood the module.]`
-#let side-panel(title, body, accent: cern_colors.blue) = box-card(
-  [
-    #strong(title)
-
-    #body
-  ],
-  accent: accent,
-)
-
 /// Numbered item for a list or closing slide.
 ///
-/// Example: `#numbered-item("01", "Grounded in our knowledge")[ ... ]`
+/// Example: `#numbered-item("01")[*Grounded in our knowledge* ... ]`
 #let numbered-item(
   number,
-  title,
   body,
   accent: cern_colors.blue,
 ) = {
-  show strong: set text(fill: accent)
+  show strong: it => text(fill: accent, weight: "bold", it.body)
   grid(
     columns: (auto, 1fr),
     column-gutter: 0.7em,
     text(26pt, weight: "bold", fill: accent)[#number],
     {
-      strong(text(17pt)[#title])
-      v(0.25em)
       set text(13.5pt, fill: cern_colors.dark)
       body
     },
@@ -130,7 +115,7 @@
 /// Highlighted note band for the bottom of a slide.
 ///
 /// Example: `#note-band([Next])[ ... ]`
-#let note-band(title, body, accent: cern_colors.blue) = box-card(
+#let note-band(title, body, accent: cern_colors.blue) = side-card(
   grid(
     columns: (auto, 1fr),
     column-gutter: 12pt,
