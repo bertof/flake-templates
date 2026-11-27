@@ -86,7 +86,7 @@
     radius: radius,
     inset: inset,
     [
-      #show strong: set text(fill: accent)
+      #show strong: it => text(fill: accent, weight: "bold", it.body)
       #body
     ],
   )
